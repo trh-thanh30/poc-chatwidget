@@ -1,0 +1,234 @@
+:root {
+  color: #251f1a;
+  background: #e9e2d4;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: content-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Deliberately hostile selectors. They must not leak into the Shadow DOM widget. */
+button {
+  all: unset;
+  padding: 12px 18px;
+  color: #fff;
+  font-family: Impact, fantasy;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: #ed3e73;
+  border: 7px dashed #5d1bcb;
+  cursor: crosshair;
+  transform: rotate(-2deg);
+}
+
+textarea {
+  color: #fff;
+  font: 700 18px/1 monospace;
+  background: #5d1bcb;
+  border: 8px dotted #f4b942;
+  border-radius: 0;
+}
+
+.page-grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
+  opacity: 0.18;
+}
+
+.site-header,
+main,
+footer {
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0;
+  border-bottom: 1px solid rgb(37 31 26 / 28%);
+}
+
+.wordmark {
+  color: inherit;
+  font: 900 21px/1 "Trebuchet MS", sans-serif;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.wordmark span {
+  margin-left: 3px;
+  font-size: 8px;
+  vertical-align: top;
+}
+
+nav {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+nav a {
+  color: inherit;
+  font: 700 11px/1 "Trebuchet MS", sans-serif;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+nav button {
+  padding: 8px 13px;
+  font-size: 10px;
+  border-width: 3px;
+}
+
+.hero {
+  display: grid;
+  min-height: 68vh;
+  align-content: center;
+  padding: 70px 0 55px;
+}
+
+.overline {
+  margin: 0 0 22px;
+  font: 700 10px/1 "Trebuchet MS", sans-serif;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 970px;
+  margin: 0;
+  font-size: clamp(58px, 9.4vw, 132px);
+  font-weight: 400;
+  letter-spacing: -0.075em;
+  line-height: 0.86;
+}
+
+.hero h1 em {
+  color: #c33c24;
+  font-weight: 400;
+}
+
+.hero-footer {
+  display: grid;
+  grid-template-columns: minmax(280px, 510px) auto;
+  gap: 50px;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: 55px;
+}
+
+.hero-footer p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+code {
+  padding: 2px 5px;
+  color: #fff8e8;
+  background: #251f1a;
+}
+
+.hero-footer a {
+  color: inherit;
+  font: 700 12px/1 "Trebuchet MS", sans-serif;
+  text-underline-offset: 5px;
+  text-transform: uppercase;
+}
+
+.proof {
+  display: grid;
+  grid-template-columns: 100px minmax(260px, 1fr) minmax(260px, 360px);
+  gap: 38px;
+  align-items: start;
+  padding: 70px 0;
+  border-top: 1px solid rgb(37 31 26 / 28%);
+}
+
+.proof-number {
+  color: #c33c24;
+  font-size: 44px;
+  font-style: italic;
+}
+
+.proof h2 {
+  max-width: 580px;
+  margin: 0;
+  font-size: clamp(30px, 4vw, 53px);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.test-controls {
+  display: grid;
+  gap: 24px;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 25px 0 30px;
+  font: 700 10px/1 "Trebuchet MS", sans-serif;
+  letter-spacing: 0.1em;
+  border-top: 1px solid rgb(37 31 26 / 28%);
+  text-transform: uppercase;
+}
+
+#runtime-status[data-ready='true'] {
+  color: #18745f;
+}
+
+@media (max-width: 760px) {
+  .site-header,
+  main,
+  footer {
+    width: min(100% - 28px, 1180px);
+  }
+
+  nav a {
+    display: none;
+  }
+
+  .hero {
+    min-height: 62vh;
+  }
+
+  .hero h1 {
+    font-size: clamp(52px, 17vw, 86px);
+  }
+
+  .hero-footer,
+  .proof {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-number {
+    font-size: 28px;
+  }
+
+  footer {
+    gap: 12px;
+    flex-direction: column;
+  }
+}

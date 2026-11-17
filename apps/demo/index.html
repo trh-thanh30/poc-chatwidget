@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Website giả lập dùng để kiểm tra Chat Widget và Shadow DOM isolation."
+    />
+    <title>Northstar Studio · Chat Widget Demo</title>
+  </head>
+  <body>
+    <div class="page-grain" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="wordmark" href="#">Northstar<span>®</span></a>
+      <nav aria-label="Điều hướng chính">
+        <a href="#work">Dự án</a>
+        <a href="#about">Về chúng tôi</a>
+        <button type="button">Liên hệ</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="work">
+        <p class="overline">Independent digital studio · 2026</p>
+        <h1>Thiết kế những trải nghiệm <em>được nhớ đến.</em></h1>
+        <div class="hero-footer">
+          <p>
+            Đây là website host giả lập. CSS bên dưới cố tình can thiệp mạnh vào
+            <code>button</code>, <code>textarea</code> và box model để kiểm tra Shadow DOM.
+          </p>
+          <a href="#proof">Xem kiểm chứng <span aria-hidden="true">↘</span></a>
+        </div>
+      </section>
+
+      <section class="proof" id="proof">
+        <div class="proof-number">01</div>
+        <div>
+          <p class="overline">Isolation test</p>
+          <h2>Host CSS rất “ồn”. Widget vẫn phải giữ nguyên giao diện.</h2>
+        </div>
+        <div class="test-controls">
+          <button type="button">Host button</button>
+          <textarea rows="2" placeholder="Host textarea"></textarea>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Hà Nội · Việt Nam</span>
+      <span id="runtime-status">Đang kiểm tra widget…</span>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+    <script
+      src="http://localhost:4173/widget.js"
+      data-widget-id="demo-widget"
+      data-api-url="http://localhost:3000/api/v1"
+      defer
+    ></script>
+  </body>
+</html>

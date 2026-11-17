@@ -1,0 +1,4 @@
+{
+  "extends": "@chat-widget/typescript-config/react.json",
+  "include": ["src", "vite.config.ts"]
+}

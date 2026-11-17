@@ -1,0 +1,7 @@
+{
+  "extends": "@chat-widget/typescript-config/react.json",
+  "compilerOptions": {
+    "jsx": "preserve"
+  },
+  "include": ["src", "vite.config.ts"]
+}

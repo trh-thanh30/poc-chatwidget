@@ -1,0 +1,24 @@
+{
+  "name": "@chat-widget/widget",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm run build && concurrently --kill-others \"vite build --watch\" \"vite preview --host 0.0.0.0 --port 4173 --strictPort\"",
+    "build": "vite build",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@chat-widget/typescript-config": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "concurrently": "^9.2.1",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
