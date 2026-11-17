@@ -20,7 +20,7 @@ thể thêm Axios, TanStack Query và shadcn/ui mà không phá Shadow DOM bound
 | Tests      | Vitest 4, jsdom 27             | Component/bootstrap behavior         |
 | Workspace  | pnpm 10, Turborepo             | Dependency và dev orchestration      |
 
-### Đã chọn nhưng chưa cài trong task hiện tại
+### Đã chọn nhưng chưa cài đặt
 
 | Package        | Task dự kiến                                | Rule khi thêm                                                    |
 | -------------- | ------------------------------------------- | ---------------------------------------------------------------- |
@@ -153,7 +153,7 @@ Không đổi filename/hash strategy nếu chưa cập nhật integration guide 
 
 ## Target Structure Khi Chat Feature Xuất Hiện
 
-Không tạo trước các folder rỗng. Khi `POC-CHATWIDGET-004` bắt đầu, cấu trúc mục tiêu là:
+Không tạo trước các folder rỗng. Khi frontend message flow được triển khai, cấu trúc mục tiêu là:
 
 ```text
 apps/widget/src/

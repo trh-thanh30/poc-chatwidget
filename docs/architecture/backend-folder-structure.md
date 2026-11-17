@@ -19,13 +19,13 @@ không để controller, database hay thư viện Zalo phụ thuộc trực ti�
 | Language       | TypeScript 5.9                        | Strict type checking                         |
 | Tests          | Vitest 4                              | Unit test ở workspace root                   |
 | Build          | Nest CLI 11                           | Compile và chạy API                          |
+| Persistence    | Drizzle ORM, Drizzle Kit              | Typed schema và SQL migration                |
+| Database       | PostgreSQL driver (`pg`)              | PostgreSQL connection pool                   |
 
-### Đã chọn nhưng chưa cài trong task hiện tại
+### Đã chọn nhưng chưa cài đặt
 
 | Package                                         | Task dự kiến          | Rule khi thêm                                        |
 | ----------------------------------------------- | --------------------- | ---------------------------------------------------- |
-| Drizzle ORM, Drizzle Kit                        | Persistence slice     | Schema và migration do `apps/api` sở hữu             |
-| PostgreSQL driver (`pg`)                        | Persistence slice     | Một connection pool được quản lý bởi database module |
 | `@nestjs/config`                                | API configuration     | Validate env lúc bootstrap, không đọc env rải rác    |
 | `class-validator`, `class-transformer`          | Public request DTO    | Global validation pipe với whitelist                 |
 | `@nestjs/throttler` hoặc rate-limit store riêng | Anti-spam slice       | Key theo Widget + phiên, không chỉ theo IP           |

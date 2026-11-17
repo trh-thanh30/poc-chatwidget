@@ -2,6 +2,7 @@
 
 Status: completed
 Type: feature
+Area: integration
 Blocked by: None
 
 ## Parent

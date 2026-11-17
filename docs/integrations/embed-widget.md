@@ -17,7 +17,7 @@
 | ---------------- | ----------- | --------------------------------------------------- |
 | `src`            | yes         | URL tới artifact IIFE `widget.js`                   |
 | `data-widget-id` | yes         | Public Widget ID; không phải secret                 |
-| `data-api-url`   | planned     | Base URL cho Widget API ở task tiếp theo            |
+| `data-api-url`   | configured  | Base URL đã được đọc; session/message calls chưa có |
 | `defer`          | recommended | Chạy sau khi HTML parse, không block page rendering |
 
 ## Runtime behavior hiện tại
@@ -26,7 +26,7 @@
 - Nếu host đã tồn tại, script dừng và dùng instance hiện tại.
 - React UI và CSS nằm trong open Shadow Root.
 - Thiếu Widget ID vẫn hiển thị launcher nhưng panel báo lỗi cấu hình.
-- Widget chưa gọi API hoặc gửi tin trong task hiện tại.
+- Widget hiện chưa gọi session/message API hoặc gửi tin nhắn.
 
 ## Host requirements
 

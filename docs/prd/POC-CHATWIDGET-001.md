@@ -58,11 +58,19 @@ kiểm soát được domain sử dụng và hạn chế spam.
 - CAPTCHA và chống bot nâng cao.
 - Lưu trữ lịch sử chat dài hạn.
 
-## Delivery Slices
+## Delivery Plan
 
-1. `POC-CHATWIDGET-002` — Monorepo và isolated embed.
-2. `POC-CHATWIDGET-003` — Widget session và allowed origin.
-3. `POC-CHATWIDGET-004` — Mock Channel chat round-trip.
-4. `POC-CHATWIDGET-005` — Session rate limiting.
-5. `POC-CHATWIDGET-006` — Zalo Personal Channel.
-6. `POC-CHATWIDGET-007` — hardening, packaging và handoff docs.
+Frontend và backend được quản lý bằng issue độc lập để scope, owner, acceptance criteria và review
+rõ ràng. Hai issue trong cùng capability pair tạo thành một đường chạy end-to-end.
+
+| ID                   | Area         | Deliverable                       | Blocked by                 |
+| -------------------- | ------------ | --------------------------------- | -------------------------- |
+| `POC-CHATWIDGET-002` | foundation   | Monorepo và isolated embed        | None                       |
+| `POC-CHATWIDGET-003` | backend      | Chat Session và Domain Whitelist  | `002`                      |
+| `POC-CHATWIDGET-004` | frontend     | Widget Session Bootstrap          | `003`                      |
+| `POC-CHATWIDGET-005` | backend      | Message API và Mock Channel       | `003`                      |
+| `POC-CHATWIDGET-006` | frontend     | Chat UI và Message Flow           | `004`, `005`               |
+| `POC-CHATWIDGET-007` | backend      | Rate Limiting theo Widget Session | `005`                      |
+| `POC-CHATWIDGET-008` | frontend     | Anti-spam và Rate-limit UX        | `006`, `007`               |
+| `POC-CHATWIDGET-009` | backend/HITL | Zalo Personal Channel             | `005`                      |
+| `POC-CHATWIDGET-010` | integration  | Hardening, packaging và handoff   | `004`, `006`, `008`, `009` |

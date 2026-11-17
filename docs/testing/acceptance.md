@@ -9,7 +9,7 @@ pnpm test
 pnpm build
 ```
 
-## POC-CHATWIDGET-002 manual smoke test
+## Embed foundation manual smoke test
 
 1. Chạy `pnpm dev`.
 2. Mở `http://localhost:5173`.
@@ -27,7 +27,8 @@ pnpm build
 - Widget styles không đổi host button/textarea.
 - Không có stylesheet Widget được inject vào `document.head`.
 
-## Future acceptance suites
+## Capability acceptance suites
 
-Các task sau phải bổ sung test riêng cho allowed origin, session isolation, 5/10-second rate limit,
-Mock Channel round-trip, Zalo mapping và network error handling.
+Mỗi backend/frontend capability pair phải bổ sung test riêng cho allowed origin, session
+bootstrap UI, session isolation, Mock Channel round-trip, 5/10-second rate limit, cooldown UX,
+Zalo mapping và network error handling.

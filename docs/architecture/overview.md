@@ -22,8 +22,8 @@ NestJS API (apps/api)
         +-- GET /api/v1/health
 ```
 
-Task `POC-CHATWIDGET-002` chưa kết nối Widget với API; `data-api-url` mới chỉ là bootstrap
-configuration cho task tiếp theo.
+Widget chưa kết nối với API; `data-api-url` hiện mới là bootstrap configuration được đọc từ embed
+script.
 
 ## Dependency rules
 

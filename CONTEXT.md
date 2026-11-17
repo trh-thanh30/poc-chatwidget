@@ -34,10 +34,18 @@ deterministic.
 
 ## Current State
 
-- `POC-CHATWIDGET-002` đã hoàn thành monorepo, NestJS skeleton, embed IIFE, launcher/panel,
-  Shadow DOM isolation, responsive UI và demo host.
+- Monorepo, NestJS skeleton, embed IIFE, launcher/panel, Shadow DOM isolation, responsive UI và
+  demo host đã hoạt động.
 - Chat API, persistence, origin whitelist, rate limiting và Zalo integration chưa được triển khai.
 - Composer trong Widget hiện bị disable có chủ đích.
+
+## Delivery Model
+
+- Backend và frontend được quản lý bằng issue độc lập để có owner và acceptance criteria riêng.
+- Một capability chỉ hoàn chỉnh end-to-end khi cả backend issue và frontend issue tương ứng đạt.
+- Frontend issue phụ thuộc contract ổn định từ backend issue nhưng có thể phát triển với mock
+  transport sau khi contract đã chốt.
+- Zalo Personal là channel adapter phía backend; Widget không có Zalo-specific UI hoặc contract.
 
 ## Architecture Principles
 

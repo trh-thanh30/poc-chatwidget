@@ -6,9 +6,11 @@ Issue tracker mặc định là local Markdown trong `docs/issues/`.
 
 - Mỗi issue là một file: `docs/issues/<TASK-ID>-<slug>.md`.
 - Task ID dùng prefix `POC-CHATWIDGET-`.
-- Mỗi issue có `Status`, `Type`, `Blocked by` và acceptance criteria dạng checklist.
+- Mỗi issue có `Status`, `Type`, `Area`, `Blocked by` và acceptance criteria dạng checklist.
 - PRD nguồn nằm trong `docs/prd/`; issue liên kết về PRD hoặc parent task.
 - Trao đổi quan trọng có thể append dưới `## Notes` thay vì thay đổi lịch sử acceptance criteria.
+- Backend và frontend được theo dõi bằng issue độc lập. Một capability pair phải liên kết dependency
+  và contract đầu vào/đầu ra rõ ràng.
 
 ## Khi skill yêu cầu publish issue
 
