@@ -16,10 +16,12 @@
   },
   "devDependencies": {
     "@chat-widget/typescript-config": "workspace:*",
+    "@tailwindcss/vite": "^4.3.5",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "concurrently": "^9.2.1",
+    "tailwindcss": "^4.3.5",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-005] - Frontend Widget Session Bootstrap
 
-Status: ready
+Status: completed
 Type: feature
 Area: frontend
 Blocked by: POC-CHATWIDGET-012
@@ -17,6 +17,7 @@ Widget session.
 ## Package/Reuse Strategy
 
 - Dùng configured Axios instance đã cài; không tự bọc `fetch` rải rác trong component.
+- Dùng Tailwind CSS qua Vite plugin; compiled CSS vẫn được import dạng chuỗi vào Shadow Root.
 - Chưa cần TanStack Query cho one-shot bootstrap; giữ client có thể tái sử dụng ở chat flow.
 
 ## Technical Scope
@@ -36,13 +37,13 @@ Widget session.
 
 ## Acceptance Criteria
 
-- [ ] Allowed host chuyển loading → ready và giữ JWT trong memory.
-- [ ] Blocked/unknown/network cases có UI khác nhau, accessible và không báo online sai.
-- [ ] API offline retry được mà không crash host page.
-- [ ] Duplicate embed chỉ bootstrap một Widget instance.
-- [ ] Request bị abort khi unmount và không update state sau unmount.
-- [ ] JWT không xuất hiện trong DOM, URL, storage hoặc logs.
-- [ ] Desktop và viewport 375 px sử dụng được.
+- [x] Allowed host chuyển loading → ready và giữ JWT trong memory.
+- [x] Blocked/unknown/network cases có UI khác nhau, accessible và không báo online sai.
+- [x] API offline retry được mà không crash host page.
+- [x] Duplicate embed chỉ bootstrap một Widget instance.
+- [x] Request bị abort khi unmount và không update state sau unmount.
+- [x] JWT không xuất hiện trong DOM, URL, storage hoặc logs.
+- [x] Desktop và viewport 375 px sử dụng được.
 
 ## Out of Scope
 
@@ -55,3 +56,10 @@ pnpm --filter @chat-widget/widget check-types
 pnpm test
 pnpm --filter @chat-widget/widget build
 ```
+
+## Notes
+
+Ngày 2026-11-18, Widget session lifecycle, Axios interceptors và Shadow DOM bootstrap tests pass.
+Tailwind utilities được compile vào `widget.js` rồi inject qua stylesheet inline trong Shadow Root.
+Local smoke test xác nhận demo/asset endpoints, CORS preflight và session API thật hoạt động; token
+không được render hoặc ghi vào browser storage/logging.

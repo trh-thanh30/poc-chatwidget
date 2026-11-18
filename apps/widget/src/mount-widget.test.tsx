@@ -28,7 +28,9 @@ describe('mountChatWidget', () => {
     expect(document.querySelectorAll(`#${WIDGET_HOST_ID}`)).toHaveLength(1);
     expect(firstHost.shadowRoot).not.toBeNull();
     expect(firstHost.shadowRoot?.querySelector('style')).not.toBeNull();
-    expect(firstHost.shadowRoot?.querySelector('button[aria-label="Mở cửa sổ chat"]')).not.toBeNull();
+    expect(
+      firstHost.shadowRoot?.querySelector('button[aria-label="Mở cửa sổ chat"]'),
+    ).not.toBeNull();
   });
 
   it('opens and closes the accessible dialog', async () => {

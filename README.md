@@ -42,18 +42,18 @@ Chi tiết: [Architecture overview](docs/architecture/overview.md),
 
 ## Technology Stack
 
-| Layer             | Technology                        | Purpose                                                   |
-| ----------------- | --------------------------------- | --------------------------------------------------------- |
-| Workspace         | pnpm 10, Turborepo                | Dependency management và task orchestration               |
-| Widget UI         | React 19, React DOM 19            | Isolated UI tree trong Shadow Root                        |
-| Frontend build    | Vite 7, TypeScript 5.9            | IIFE artifact và demo dev server                          |
-| Frontend data     | Axios, TanStack Query             | HTTP transport, server state và polling                   |
-| UI primitives     | shadcn/ui khi cần                 | Source primitives tối thiểu, style inject vào Shadow Root |
-| Backend           | NestJS 11, Config, JWT, Throttler | REST API, validated config, session token và anti-spam    |
-| Persistence       | PostgreSQL, Drizzle ORM/Kit       | Typed schema, query và SQL migrations                     |
-| Queue-ready infra | Redis 7                           | Local AOF service; BullMQ chỉ thêm khi có consumer        |
-| Testing           | Vitest 4, jsdom, Supertest        | Unit, component và HTTP integration tests                 |
-| Quality           | ESLint 9, Prettier 3              | Static analysis và formatting                             |
+| Layer             | Technology                         | Purpose                                                   |
+| ----------------- | ---------------------------------- | --------------------------------------------------------- |
+| Workspace         | pnpm 10, Turborepo                 | Dependency management và task orchestration               |
+| Widget UI         | React 19, React DOM 19             | Isolated UI tree trong Shadow Root                        |
+| Frontend build    | Vite 7, TypeScript 5.9, Tailwind 4 | IIFE artifact, Shadow DOM CSS và demo dev server          |
+| Frontend data     | Axios, TanStack Query              | HTTP transport, server state và polling                   |
+| UI primitives     | shadcn/ui khi cần                  | Source primitives tối thiểu, style inject vào Shadow Root |
+| Backend           | NestJS 11, Config, JWT, Throttler  | REST API, validated config, session token và anti-spam    |
+| Persistence       | PostgreSQL, Drizzle ORM/Kit        | Typed schema, query và SQL migrations                     |
+| Queue-ready infra | Redis 7                            | Local AOF service; BullMQ chỉ thêm khi có consumer        |
+| Testing           | Vitest 4, jsdom, Supertest         | Unit, component và HTTP integration tests                 |
+| Quality           | ESLint 9, Prettier 3               | Static analysis và formatting                             |
 
 Axios và TanStack Query đã nằm trong Widget dependency baseline. shadcn/ui chỉ được thêm theo từng
 primitive thực sự sử dụng để giữ bundle nhỏ và không phá Shadow DOM styling. Không đặt app runtime
@@ -178,16 +178,24 @@ Response trả `data.token` và `data.expiresAt`. Các request được bảo v�
 `GET /api/v1/widget-sessions/current`. Backend re-check session, Widget status và allowed origin
 trên mỗi lần verify; CORS không thay thế authorization này.
 
+Widget tự bootstrap session khi mount. Loading, denied, unknown Widget và network failure được
+hiển thị thành các trạng thái riêng; network failure có thể retry. Token chỉ nằm trong memory của
+Widget runtime, không được đưa vào DOM, URL, local/session storage hoặc logs.
+
 Widget dev command build artifact trước, sau đó chạy Vite build watch và preview server. Nếu demo
 được mở trước khi cổng `4173` sẵn sàng, reload host page sau khi Widget server khởi động.
 
 Chạy riêng từng app:
 
 ```bash
-pnpm --filter @chat-widget/widget dev
-pnpm --filter @chat-widget/demo dev
-pnpm --filter @chat-widget/api dev
+pnpm dev:api
+pnpm dev:widget
+pnpm dev:demo
 ```
+
+Mỗi lệnh `dev:*` là một process chạy liên tục; mở ba terminal nếu cần chạy đồng thời toàn bộ API,
+Widget asset server và Demo host. Các lệnh `build:*` và `check-types:*` cùng hậu tố cho phép build
+hoặc kiểm tra riêng từng app, ví dụ `pnpm build:widget` và `pnpm check-types:api`.
 
 ## Embed Contract
 
@@ -216,11 +224,16 @@ troubleshooting.
 ## Workspace Commands
 
 ```bash
-pnpm lint          # ESLint toàn bộ application source
-pnpm check-types   # TypeScript check cho từng workspace package
-pnpm test          # Vitest unit/component/integration suite
-pnpm build         # Build API, demo và widget artifact
-pnpm format        # Format authored source và documentation
+pnpm dev:api             # Chạy riêng NestJS API
+pnpm dev:widget          # Build/watch và serve riêng Widget artifact
+pnpm dev:demo            # Chạy riêng Demo host
+pnpm build:<app>         # Build riêng api, widget hoặc demo
+pnpm check-types:<app>   # TypeScript check riêng api, widget hoặc demo
+pnpm lint                # ESLint toàn bộ application source
+pnpm check-types         # TypeScript check cho từng workspace package
+pnpm test                # Vitest unit/component/integration suite
+pnpm build               # Build API, demo và widget artifact
+pnpm format              # Format authored source và documentation
 ```
 
 Quality gate trước khi bàn giao thay đổi:

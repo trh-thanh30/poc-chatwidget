@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type SVGProps } from 'react';
 
+import type { WidgetSessionClient } from './features/session/api/widget-session.api';
+import { SessionState } from './features/session/components/session-state';
+import { useWidgetSession } from './features/session/hooks/use-widget-session';
+
 export type ChatWidgetConfig = {
   apiUrl?: string;
   widgetId?: string;
@@ -32,12 +36,37 @@ function ArrowIcon(props: IconProps) {
   );
 }
 
-export function ChatWidget({ config }: { config: ChatWidgetConfig }) {
+export function ChatWidget({
+  config,
+  sessionClient,
+}: {
+  config: ChatWidgetConfig;
+  sessionClient?: WidgetSessionClient;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const panelId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
-  const isConfigured = Boolean(config.widgetId?.trim());
+  const widgetId = config.widgetId?.trim();
+  const apiUrl = config.apiUrl?.trim();
+  const { state: sessionState, retry } = useWidgetSession({
+    apiUrl,
+    widgetId,
+    client: sessionClient,
+  });
+  const configurationIssue = !widgetId
+    ? 'widget-id'
+    : !apiUrl && !sessionClient
+      ? 'api-url'
+      : undefined;
+  const visibleStatus = configurationIssue ? 'unavailable' : sessionState.status;
+  const availability = {
+    initializing: 'Đang kết nối an toàn…',
+    ready: 'Đã kết nối · Sẵn sàng',
+    denied: 'Website chưa được cấp quyền',
+    'not-found': 'Không tìm thấy Widget',
+    unavailable: 'Chưa thể kết nối',
+  }[visibleStatus];
 
   useEffect(() => {
     if (isOpen) closeButtonRef.current?.focus();
@@ -59,7 +88,11 @@ export function ChatWidget({ config }: { config: ChatWidgetConfig }) {
   }
 
   return (
-    <div className="widget-shell" data-open={isOpen ? 'true' : 'false'}>
+    <div
+      className="widget-shell"
+      data-open={isOpen ? 'true' : 'false'}
+      data-session-status={visibleStatus}
+    >
       {isOpen ? (
         <section className="chat-panel" id={panelId} role="dialog" aria-label="Hỗ trợ trực tuyến">
           <header className="chat-header">
@@ -69,8 +102,8 @@ export function ChatWidget({ config }: { config: ChatWidgetConfig }) {
             <div className="header-copy">
               <p className="eyebrow">Kênh hỗ trợ</p>
               <h2>Xin chào, mình có thể giúp gì?</h2>
-              <span className="availability">
-                <i aria-hidden="true" /> Phản hồi trong ít phút
+              <span className="availability" aria-live="polite">
+                <i aria-hidden="true" /> {availability}
               </span>
             </div>
             <button
@@ -85,22 +118,11 @@ export function ChatWidget({ config }: { config: ChatWidgetConfig }) {
           </header>
 
           <main className="conversation">
-            {isConfigured ? (
-              <div className="empty-state">
-                <div className="empty-visual" aria-hidden="true">
-                  <span />
-                  <ChatIcon />
-                </div>
-                <p className="empty-kicker">Widget đã sẵn sàng</p>
-                <h3>Bắt đầu một cuộc trò chuyện</h3>
-                <p>Luồng gửi và nhận tin nhắn sẽ được kết nối ở task tiếp theo.</p>
-              </div>
-            ) : (
-              <div className="configuration-error" role="alert">
-                <strong>Thiếu Widget ID</strong>
-                <span>Hãy thêm thuộc tính data-widget-id vào script nhúng.</span>
-              </div>
-            )}
+            <SessionState
+              state={sessionState}
+              configurationIssue={configurationIssue}
+              onRetry={retry}
+            />
           </main>
 
           <form className="composer" onSubmit={handleSubmit}>
@@ -118,7 +140,7 @@ export function ChatWidget({ config }: { config: ChatWidgetConfig }) {
               </button>
             </div>
             <p id={`${panelId}-notice`} className="preview-note">
-              Bản xem trước · {config.widgetId?.trim() || 'chưa cấu hình'}
+              Bản xem trước · {widgetId || 'chưa cấu hình'}
             </p>
           </form>
         </section>

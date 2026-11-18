@@ -12,23 +12,23 @@ thể thêm Axios, TanStack Query và shadcn/ui mà không phá Shadow DOM bound
 
 ### Đã được cài đặt
 
-| Area        | Package/Tool                   | Vai trò                              |
-| ----------- | ------------------------------ | ------------------------------------ |
-| UI runtime  | React 19, React DOM 19         | Component tree bên trong Shadow Root |
-| Build       | Vite 7, `@vitejs/plugin-react` | Build IIFE và demo dev server        |
-| Language    | TypeScript 5.9                 | Strict type checking                 |
-| Tests       | Vitest 4, jsdom 27             | Component/bootstrap behavior         |
-| Workspace   | pnpm 10, Turborepo             | Dependency và dev orchestration      |
-| HTTP        | Axios                          | Configured Widget API client         |
-| Server data | TanStack Query                 | Query, mutation, polling và retry    |
+| Area        | Package/Tool                        | Vai trò                                    |
+| ----------- | ----------------------------------- | ------------------------------------------ |
+| UI runtime  | React 19, React DOM 19              | Component tree bên trong Shadow Root       |
+| Build       | Vite 7, `@vitejs/plugin-react`      | Build IIFE và demo dev server              |
+| Styling     | Tailwind CSS 4, `@tailwindcss/vite` | Utility CSS compiled vào inline stylesheet |
+| Language    | TypeScript 5.9                      | Strict type checking                       |
+| Tests       | Vitest 4, jsdom 27                  | Component/bootstrap behavior               |
+| Workspace   | pnpm 10, Turborepo                  | Dependency và dev orchestration            |
+| HTTP        | Axios                               | Configured client và typed interceptors    |
+| Server data | TanStack Query                      | Query, mutation, polling và retry          |
 
 ### Đã chọn nhưng chưa cài đặt
 
-| Package      | Task dự kiến                                | Rule khi thêm                                                    |
-| ------------ | ------------------------------------------- | ---------------------------------------------------------------- |
-| shadcn/ui    | Khi UI cần primitive mới                    | Copy source tối thiểu vào Widget; không kéo nguyên design system |
-| Tailwind CSS | Nếu shadcn cần                              | CSS build phải inject vào Shadow Root, không vào `document.head` |
-| Zod          | Shared contracts nếu cần runtime validation | Schema ở package framework-neutral hoặc feature sở hữu           |
+| Package   | Task dự kiến                                | Rule khi thêm                                                    |
+| --------- | ------------------------------------------- | ---------------------------------------------------------------- |
+| shadcn/ui | Khi UI cần primitive mới                    | Copy source tối thiểu vào Widget; không kéo nguyên design system |
+| Zod       | Shared contracts nếu cần runtime validation | Schema ở package framework-neutral hoặc feature sở hữu           |
 
 Không viết tài liệu như thể các package trong bảng thứ hai đã tồn tại. Khi thêm package, cập nhật
 inventory trong cùng change set. Package đã cài nhưng chưa được gọi trong runtime vẫn phải được
@@ -39,6 +39,17 @@ triển khai ở đúng frontend issue, không thêm speculative provider/compon
 ```text
 apps/widget/
 ├── src/
+│   ├── features/session/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── tests/
+│   │   └── types/
+│   ├── lib/
+│   │   ├── tests/
+│   │   ├── http-client.error.ts
+│   │   ├── http-client.interceptors.ts
+│   │   └── http-client.ts
 │   ├── entry.tsx
 │   ├── mount-widget.tsx
 │   ├── mount-widget.test.tsx
@@ -118,11 +129,11 @@ Trách nhiệm hiện tại:
 - Launcher state.
 - Panel open/close behavior.
 - Keyboard Escape và focus restoration.
-- Missing Widget ID state.
+- Compose Widget session hook và status presentation.
 - Preview composer bị disable đúng scope task.
 
-Khi chat feature phát triển, `widget.tsx` chỉ nên compose provider và feature component. Không để
-file này trở thành component lớn chứa API, list rendering và channel logic.
+`widget.tsx` chỉ compose local panel behavior và feature session presentation. Axios/session
+lifecycle nằm trong `features/session`; không đưa API, message list hoặc channel logic vào đây.
 
 ### `src/styles.css`
 
@@ -215,7 +226,11 @@ React component
 ```
 
 - Component không import Axios trực tiếp.
-- Axios interceptor chỉ chuẩn hóa transport/auth/error; không chứa UI behavior.
+- Axios request interceptor đọc token qua callback in-memory tại thời điểm request, không đọc
+  storage hoặc module global.
+- Axios response interceptor chuẩn hóa HTTP/network/timeout/cancel error, `Retry-After` và
+  `x-request-id`; không tự refresh token khi backend chưa có refresh contract.
+- Axios interceptor không log request/response, JWT hoặc message content và không chứa UI behavior.
 - Query key định nghĩa tập trung trong feature.
 - Retry GET/poll có kiểm soát; không retry send-message mutation mù quáng.
 - `429` phải đọc `Retry-After` và chuyển thành UI state rõ ràng.
@@ -271,6 +286,9 @@ Demo là consumer độc lập.
 - Singleton mount.
 - Open/close/focus/Escape behavior.
 - Missing configuration state.
+- Session loading/ready/denied/not-found/unavailable và retry behavior.
+- Abort bootstrap khi unmount, singleton bootstrap và memory-only JWT behavior.
+- Axios token/error interceptor contract.
 - Message rendering và safe text handling khi feature được thêm.
 
 ### Integration/browser tests

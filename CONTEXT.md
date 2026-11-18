@@ -44,7 +44,9 @@ deterministic.
   thực JWT session gắn với exact origin. Create/verify flow nằm trong use case; common HTTP module
   sở hữu stable errors, request ID và privacy-safe logging. Message API, rate limiting và Zalo
   integration chưa được triển khai.
-- Composer trong Widget hiện bị disable có chủ đích.
+- Widget bootstrap session qua Axios khi mount và hiển thị riêng trạng thái initializing, ready,
+  denied, not-found và unavailable; JWT chỉ giữ trong React memory. Composer vẫn bị disable có chủ
+  đích.
 - PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle business schema/migration
   cho Widget session đã có; BullMQ consumer vẫn chưa được triển khai.
 
