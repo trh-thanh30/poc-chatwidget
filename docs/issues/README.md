@@ -5,22 +5,22 @@ cho owner khác nhau; khi cả hai hoàn thành thì capability end-to-end mới
 
 ## Delivery Map
 
-| Capability          | Backend | Frontend           | Kết quả end-to-end                           |
-| ------------------- | ------- | ------------------ | -------------------------------------------- |
-| Embed foundation    | `002`   | `002`              | Script nhúng + isolated launcher/panel       |
-| Session & whitelist | `003`   | `004`              | Allowed host nhận Widget session             |
-| Mock chat           | `005`   | `006`              | Visitor gửi và nhận Mock reply               |
-| Anti-spam           | `007`   | `008`              | Backend limit + cooldown UX                  |
-| Zalo Personal       | `009`   | Không cần UI riêng | Cùng message contract, đổi channel adapter   |
-| Handoff             | `010`   | `010`              | Full integration, packaging và documentation |
+| Capability          | Infrastructure/BE | Frontend           | Kết quả end-to-end                           |
+| ------------------- | ----------------- | ------------------ | -------------------------------------------- |
+| Foundation          | `002`, `003`      | `002`              | Isolated embed + local PostgreSQL/tooling    |
+| Session & whitelist | `004`             | `005`              | Allowed host nhận JWT Widget session         |
+| Mock chat           | `006`             | `007`              | Visitor gửi và nhận Mock reply               |
+| Anti-spam           | `008`             | `009`              | Backend limit + cooldown UX                  |
+| Zalo Personal       | `010`             | Không cần UI riêng | Cùng message contract, đổi channel adapter   |
+| Handoff             | `011`             | `011`              | Full integration, packaging và documentation |
 
 ```text
-002 -> 003
-003 -> 004, 005
-004 + 005 -> 006
-005 -> 007, 009
-006 + 007 -> 008
-004 + 006 + 008 + 009 -> 010
+002 -> 003 -> 004
+004 -> 005, 006
+005 + 006 -> 007
+006 -> 008, 010
+007 + 008 -> 009
+005 + 007 + 009 + 010 -> 011
 ```
 
 Tên file:

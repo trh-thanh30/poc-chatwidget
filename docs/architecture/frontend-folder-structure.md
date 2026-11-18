@@ -12,26 +12,27 @@ thể thêm Axios, TanStack Query và shadcn/ui mà không phá Shadow DOM bound
 
 ### Đã được cài đặt
 
-| Area       | Package/Tool                   | Vai trò                              |
-| ---------- | ------------------------------ | ------------------------------------ |
-| UI runtime | React 19, React DOM 19         | Component tree bên trong Shadow Root |
-| Build      | Vite 7, `@vitejs/plugin-react` | Build IIFE và demo dev server        |
-| Language   | TypeScript 5.9                 | Strict type checking                 |
-| Tests      | Vitest 4, jsdom 27             | Component/bootstrap behavior         |
-| Workspace  | pnpm 10, Turborepo             | Dependency và dev orchestration      |
+| Area        | Package/Tool                   | Vai trò                              |
+| ----------- | ------------------------------ | ------------------------------------ |
+| UI runtime  | React 19, React DOM 19         | Component tree bên trong Shadow Root |
+| Build       | Vite 7, `@vitejs/plugin-react` | Build IIFE và demo dev server        |
+| Language    | TypeScript 5.9                 | Strict type checking                 |
+| Tests       | Vitest 4, jsdom 27             | Component/bootstrap behavior         |
+| Workspace   | pnpm 10, Turborepo             | Dependency và dev orchestration      |
+| HTTP        | Axios                          | Configured Widget API client         |
+| Server data | TanStack Query                 | Query, mutation, polling và retry    |
 
 ### Đã chọn nhưng chưa cài đặt
 
-| Package        | Task dự kiến                                | Rule khi thêm                                                    |
-| -------------- | ------------------------------------------- | ---------------------------------------------------------------- |
-| Axios          | Chat API slice                              | Một configured client, không gọi Axios rải rác trong component   |
-| TanStack Query | Chat API slice                              | Server state, mutation, polling và retry policy                  |
-| shadcn/ui      | Khi UI cần primitive mới                    | Copy source tối thiểu vào Widget; không kéo nguyên design system |
-| Tailwind CSS   | Nếu shadcn cần                              | CSS build phải inject vào Shadow Root, không vào `document.head` |
-| Zod            | Shared contracts nếu cần runtime validation | Schema ở package framework-neutral hoặc feature sở hữu           |
+| Package      | Task dự kiến                                | Rule khi thêm                                                    |
+| ------------ | ------------------------------------------- | ---------------------------------------------------------------- |
+| shadcn/ui    | Khi UI cần primitive mới                    | Copy source tối thiểu vào Widget; không kéo nguyên design system |
+| Tailwind CSS | Nếu shadcn cần                              | CSS build phải inject vào Shadow Root, không vào `document.head` |
+| Zod          | Shared contracts nếu cần runtime validation | Schema ở package framework-neutral hoặc feature sở hữu           |
 
 Không viết tài liệu như thể các package trong bảng thứ hai đã tồn tại. Khi thêm package, cập nhật
-inventory trong cùng change set.
+inventory trong cùng change set. Package đã cài nhưng chưa được gọi trong runtime vẫn phải được
+triển khai ở đúng frontend issue, không thêm speculative provider/component.
 
 ## Current Folder Tree
 

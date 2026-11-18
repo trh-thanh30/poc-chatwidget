@@ -21,15 +21,16 @@ không để controller, database hay thư viện Zalo phụ thuộc trực ti�
 | Build          | Nest CLI 11                           | Compile và chạy API                          |
 | Persistence    | Drizzle ORM, Drizzle Kit              | Typed schema và SQL migration                |
 | Database       | PostgreSQL driver (`pg`)              | PostgreSQL connection pool                   |
+| Configuration  | `@nestjs/config`, Zod                 | Typed config và startup validation           |
+| Session token  | `@nestjs/jwt`                         | HS256 JWT signing và verification            |
+| DTO validation | class-validator/transformer           | Global request validation                    |
+| Throttling     | `@nestjs/throttler`                   | Extensible HTTP rate-limit policy            |
 
 ### Đã chọn nhưng chưa cài đặt
 
-| Package                                         | Task dự kiến          | Rule khi thêm                                        |
-| ----------------------------------------------- | --------------------- | ---------------------------------------------------- |
-| `@nestjs/config`                                | API configuration     | Validate env lúc bootstrap, không đọc env rải rác    |
-| `class-validator`, `class-transformer`          | Public request DTO    | Global validation pipe với whitelist                 |
-| `@nestjs/throttler` hoặc rate-limit store riêng | Anti-spam slice       | Key theo Widget + phiên, không chỉ theo IP           |
-| `zca-js`                                        | Zalo Personal channel | Pin exact version và bọc sau `ChatChannel` interface |
+| Package  | Task dự kiến          | Rule khi thêm                                        |
+| -------- | --------------------- | ---------------------------------------------------- |
+| `zca-js` | Zalo Personal channel | Pin exact version và bọc sau `ChatChannel` interface |
 
 Không viết tài liệu hoặc code như thể các package trong bảng thứ hai đã tồn tại. Khi cài đặt,
 cập nhật inventory và lockfile trong cùng change set.
@@ -267,7 +268,8 @@ Config dự kiến gồm:
 PORT
 DATABASE_URL
 CHAT_CHANNEL=mock|zalo-personal
-SESSION_SIGNING_SECRET
+WIDGET_SESSION_JWT_SECRET
+WIDGET_SESSION_JWT_TTL_SECONDS
 ZALO_* (chỉ khi adapter thật được bật)
 ```
 
@@ -275,8 +277,18 @@ ZALO_* (chỉ khi adapter thật được bật)
 - `.env.example` chỉ chứa placeholder.
 - Không dùng `process.env` bên trong controller/use case; inject typed config.
 - Widget ID là public identifier, không phải secret.
-- Database URL, signing secret và Zalo credential không được gửi về Widget.
+- Database URL, JWT signing secret và Zalo credential không được gửi về Widget.
 - Log phải redact header/cookie/token nhạy cảm.
+
+## Widget Session JWT
+
+- Dùng `@nestjs/jwt`; không tự xây token codec hoặc HMAC envelope riêng.
+- HS256 đủ cho POC vì cùng API process ký và verify; secret random tối thiểu 32 bytes.
+- Claims tối thiểu: `sub` session ID, `wid`, normalized `origin`, `jti`, `iss`, `aud`, `iat`, `exp`.
+- Verify algorithm, issuer, audience và expiry trước khi đọc claims.
+- JWT payload không chứa credential hoặc nội dung chat vì JWT được encode, không encrypt.
+- JWT hợp lệ vẫn phải re-check session, Widget enabled state và current whitelist trong database.
+- Widget gửi token bằng `Authorization: Bearer`; không đặt token trong URL hoặc persistent storage.
 
 ## Error Handling
 

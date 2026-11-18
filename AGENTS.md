@@ -11,6 +11,17 @@ assistant khác cùng đọc một nguồn hướng dẫn.
 4. Kiểm tra issue trong `docs/issues/` và acceptance criteria của task.
 5. Không triển khai yêu cầu thuộc task sau nếu issue hiện tại không cho phép.
 
+## Reuse trước khi tự xây
+
+- Với Docker Compose, Nest config/JWT/validation và monorepo scripts, rà các base project đang dùng
+  trong `Documents` (`booking-system-base`, `warranty-management-base`) trước khi viết mới.
+- Adapt pattern theo stack hiện tại; không copy Prisma/Redis/MinIO hoặc module ngoài scope vào repo
+  dùng Drizzle/PostgreSQL này.
+- Ưu tiên package maintained đã được chốt trong app manifest trước custom implementation, ví dụ
+  `@nestjs/jwt`, `@nestjs/config`, `class-validator`, Axios và TanStack Query.
+- Khi thêm package, kiểm tra Nest/React/Node peer compatibility, lockfile và license; dependency chỉ
+  thuộc app sử dụng nó, không đặt ở root để dựa vào hoisting.
+
 ## Agent skills
 
 ### Issue tracker

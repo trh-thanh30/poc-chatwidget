@@ -63,14 +63,15 @@ kiểm soát được domain sử dụng và hạn chế spam.
 Frontend và backend được quản lý bằng issue độc lập để scope, owner, acceptance criteria và review
 rõ ràng. Hai issue trong cùng capability pair tạo thành một đường chạy end-to-end.
 
-| ID                   | Area         | Deliverable                       | Blocked by                 |
-| -------------------- | ------------ | --------------------------------- | -------------------------- |
-| `POC-CHATWIDGET-002` | foundation   | Monorepo và isolated embed        | None                       |
-| `POC-CHATWIDGET-003` | backend      | Chat Session và Domain Whitelist  | `002`                      |
-| `POC-CHATWIDGET-004` | frontend     | Widget Session Bootstrap          | `003`                      |
-| `POC-CHATWIDGET-005` | backend      | Message API và Mock Channel       | `003`                      |
-| `POC-CHATWIDGET-006` | frontend     | Chat UI và Message Flow           | `004`, `005`               |
-| `POC-CHATWIDGET-007` | backend      | Rate Limiting theo Widget Session | `005`                      |
-| `POC-CHATWIDGET-008` | frontend     | Anti-spam và Rate-limit UX        | `006`, `007`               |
-| `POC-CHATWIDGET-009` | backend/HITL | Zalo Personal Channel             | `005`                      |
-| `POC-CHATWIDGET-010` | integration  | Hardening, packaging và handoff   | `004`, `006`, `008`, `009` |
+| ID                   | Area         | Deliverable                                 | Blocked by                 |
+| -------------------- | ------------ | ------------------------------------------- | -------------------------- |
+| `POC-CHATWIDGET-002` | foundation   | Monorepo và isolated embed                  | None                       |
+| `POC-CHATWIDGET-003` | tooling      | Local infrastructure và dependency baseline | `002`                      |
+| `POC-CHATWIDGET-004` | backend      | JWT Chat Session và Domain Whitelist        | `003`                      |
+| `POC-CHATWIDGET-005` | frontend     | Widget Session Bootstrap                    | `004`                      |
+| `POC-CHATWIDGET-006` | backend      | Message API và Mock Channel                 | `004`                      |
+| `POC-CHATWIDGET-007` | frontend     | Chat UI và Message Flow                     | `005`, `006`               |
+| `POC-CHATWIDGET-008` | backend      | Rate Limiting theo Widget Session           | `006`                      |
+| `POC-CHATWIDGET-009` | frontend     | Anti-spam và Rate-limit UX                  | `007`, `008`               |
+| `POC-CHATWIDGET-010` | backend/HITL | Zalo Personal Channel                       | `006`                      |
+| `POC-CHATWIDGET-011` | integration  | Full-stack packaging, hardening và handoff  | `005`, `007`, `009`, `010` |

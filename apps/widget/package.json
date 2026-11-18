@@ -9,6 +9,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.107.1",
+    "axios": "^1.21.1",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

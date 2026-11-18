@@ -42,20 +42,21 @@ Chi tiết: [Architecture overview](docs/architecture/overview.md),
 
 ## Technology Stack
 
-| Layer          | Technology                          | Purpose                                                         |
-| -------------- | ----------------------------------- | --------------------------------------------------------------- |
-| Workspace      | pnpm 10, Turborepo                  | Dependency management và task orchestration                     |
-| Widget UI      | React 19, React DOM 19              | Isolated UI tree trong Shadow Root                              |
-| Frontend build | Vite 7, TypeScript 5.9              | IIFE artifact và demo dev server                                |
-| Frontend data  | Axios, TanStack Query               | HTTP transport, server state và polling khi chat flow được thêm |
-| UI primitives  | shadcn/ui khi cần                   | Source primitives tối thiểu, style inject vào Shadow Root       |
-| Backend        | NestJS 11, Express platform, RxJS 7 | REST API và application lifecycle                               |
-| Persistence    | PostgreSQL, Drizzle ORM/Kit         | Typed schema, query và SQL migrations                           |
-| Testing        | Vitest 4, jsdom, Supertest          | Unit, component và HTTP integration tests                       |
-| Quality        | ESLint 9, Prettier 3                | Static analysis và formatting                                   |
+| Layer          | Technology                        | Purpose                                                   |
+| -------------- | --------------------------------- | --------------------------------------------------------- |
+| Workspace      | pnpm 10, Turborepo                | Dependency management và task orchestration               |
+| Widget UI      | React 19, React DOM 19            | Isolated UI tree trong Shadow Root                        |
+| Frontend build | Vite 7, TypeScript 5.9            | IIFE artifact và demo dev server                          |
+| Frontend data  | Axios, TanStack Query             | HTTP transport, server state và polling                   |
+| UI primitives  | shadcn/ui khi cần                 | Source primitives tối thiểu, style inject vào Shadow Root |
+| Backend        | NestJS 11, Config, JWT, Throttler | REST API, validated config, session token và anti-spam    |
+| Persistence    | PostgreSQL, Drizzle ORM/Kit       | Typed schema, query và SQL migrations                     |
+| Testing        | Vitest 4, jsdom, Supertest        | Unit, component và HTTP integration tests                 |
+| Quality        | ESLint 9, Prettier 3              | Static analysis và formatting                             |
 
-Axios, TanStack Query và shadcn/ui là stack đã chọn cho chat UI nhưng chỉ được cài khi feature sử
-dụng chúng. Không thêm dependency vào root nếu chỉ một app sử dụng.
+Axios và TanStack Query đã nằm trong Widget dependency baseline. shadcn/ui chỉ được thêm theo từng
+primitive thực sự sử dụng để giữ bundle nhỏ và không phá Shadow DOM styling. Không đặt app runtime
+dependency ở workspace root.
 
 ## Repository Structure
 
@@ -101,7 +102,7 @@ apps/widget/dist/widget.js
 #### `apps/api`
 
 - Cung cấp versioned REST API dưới `/api/v1`.
-- Xác thực Widget ID, exact origin và signed Widget session.
+- Xác thực Widget ID, exact origin và JWT Widget session.
 - Sở hữu Drizzle schema/migrations và PostgreSQL connection.
 - Giữ Mock/Zalo implementations sau `ChatChannel` interface.
 - Không trả credential, stack trace hoặc raw integration error cho Widget.
@@ -116,7 +117,7 @@ apps/widget/dist/widget.js
 
 - Node.js `>=22 <23`
 - pnpm `10.x`
-- PostgreSQL cho các capability có persistence
+- Docker Engine/Desktop với Compose plugin cho local PostgreSQL
 - Python 3 nếu dùng UI/UX Pro Max search tools trong `docs/agents/skills/`
 
 ## Install

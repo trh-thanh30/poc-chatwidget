@@ -46,6 +46,11 @@ deterministic.
 - Frontend issue phụ thuộc contract ổn định từ backend issue nhưng có thể phát triển với mock
   transport sau khi contract đã chốt.
 - Zalo Personal là channel adapter phía backend; Widget không có Zalo-specific UI hoặc contract.
+- Ưu tiên package/framework capability đã được cộng đồng duy trì (`@nestjs/jwt`,
+  `@nestjs/config`, validation, Drizzle, Axios, TanStack Query) trước khi tự xây abstraction cùng
+  chức năng.
+- Local PostgreSQL infrastructure được triển khai trước persistence feature; full-stack
+  containerization được harden ở integration/handoff phase.
 
 ## Architecture Principles
 
