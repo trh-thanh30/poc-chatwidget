@@ -2,7 +2,11 @@ import axios, { type AxiosInstance } from 'axios';
 
 import type { HttpClientError } from './http-client.error';
 import { installHttpClientInterceptors } from './http-client.interceptors';
-export { HttpClientError } from './http-client.error';
+export {
+  HttpClientError,
+  isRateLimitHttpClientError,
+  type RateLimitHttpClientError,
+} from './http-client.error';
 
 export type CreateHttpClientOptions = {
   baseUrl: string;

@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { isRateLimitHttpClientError } from '../../../lib/http-client.error';
 import type { ChatClient } from '../api/chat.api';
 import { chatKeys } from '../api/chat.keys';
 import type { ChatMessage, SendChatMessageInput } from '../types/chat.types';
+import { useRateLimitCooldown } from './use-rate-limit-cooldown';
 
 const POLL_INTERVAL_MS = 2_000;
 
@@ -11,6 +13,7 @@ export function useChatMessages({ client, widgetId }: { client: ChatClient; widg
   const queryClient = useQueryClient();
   const mutationController = useRef<AbortController | null>(null);
   const sendLocked = useRef(false);
+  const rateLimit = useRateLimitCooldown(client);
   const queryKey = chatKeys.messages(widgetId);
   const messages = useQuery({
     queryKey,
@@ -41,17 +44,18 @@ export function useChatMessages({ client, widgetId }: { client: ChatClient; widg
   useEffect(() => () => mutationController.current?.abort(), []);
 
   async function send(input: SendChatMessageInput): Promise<boolean> {
-    if (sendLocked.current) return false;
+    if (sendLocked.current || rateLimit.isBlockedNow()) return false;
     sendLocked.current = true;
     try {
       await sendMutation.mutateAsync(input);
       return true;
-    } catch {
+    } catch (error) {
+      if (isRateLimitHttpClientError(error)) rateLimit.start(error.retryAfterSeconds);
       return false;
     } finally {
       sendLocked.current = false;
     }
   }
 
-  return { messages, send, sendMutation };
+  return { messages, rateLimit, send, sendMutation };
 }

@@ -27,3 +27,18 @@ export class HttpClientError extends Error {
     this.retryAfterSeconds = options.retryAfterSeconds;
   }
 }
+
+export type RateLimitHttpClientError = HttpClientError & {
+  status: 429;
+  retryAfterSeconds: number;
+};
+
+export function isRateLimitHttpClientError(error: unknown): error is RateLimitHttpClientError {
+  return (
+    error instanceof HttpClientError &&
+    error.status === 429 &&
+    typeof error.retryAfterSeconds === 'number' &&
+    Number.isFinite(error.retryAfterSeconds) &&
+    error.retryAfterSeconds > 0
+  );
+}

@@ -16,7 +16,8 @@ Widget IIFE (apps/widget)
         |
         +-- singleton host element
         +-- Shadow Root
-        +-- React launcher + preview panel
+        +-- React launcher + chat panel
+        +-- server-driven rate-limit cooldown UX
 
 NestJS API (apps/api)
         +-- Widget session + exact-origin whitelist

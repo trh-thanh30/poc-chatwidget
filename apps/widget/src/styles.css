@@ -567,6 +567,16 @@ button {
   margin: 7px 2px 0;
 }
 
+.composer-feedback > span,
+.rate-limit-feedback > span {
+  display: block;
+}
+
+.rate-limit-countdown {
+  margin-top: 2px;
+  color: #713e27;
+}
+
 .composer--disabled .composer-note {
   color: #84969a;
 }

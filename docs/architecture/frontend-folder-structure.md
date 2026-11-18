@@ -182,7 +182,8 @@ apps/widget/src/
 │   │   │   ├── chat.api.ts
 │   │   │   └── chat.keys.ts
 │   │   ├── hooks/
-│   │   │   └── use-chat-messages.ts
+│   │   │   ├── use-chat-messages.ts
+│   │   │   └── use-rate-limit-cooldown.ts
 │   │   ├── tests/
 │   │   ├── types/
 │   │   └── chat-panel.tsx
@@ -210,6 +211,7 @@ và chat form hiện dùng semantic HTML, không cần shadcn/Radix primitive.
 | Message list          | TanStack Query cache                            |
 | Send mutation         | TanStack Query mutation                         |
 | Poll/retry status     | TanStack Query policy                           |
+| Rate-limit cooldown   | Chat hook, deadline từ server `Retry-After`     |
 | Embed config          | Immutable bootstrap config                      |
 | Cross-tab persistence | Không thêm nếu acceptance criteria chưa yêu cầu |
 
@@ -297,6 +299,7 @@ Demo là consumer độc lập.
 - Axios token/error interceptor contract.
 - Message rendering và safe text handling khi feature được thêm.
 - Composer validation, double submit, retry giữ draft/idempotency key và bounded polling lifecycle.
+- `429` giữ draft, cooldown mở/đóng submit, không auto-send và không spam live region.
 
 ### Integration/browser tests
 

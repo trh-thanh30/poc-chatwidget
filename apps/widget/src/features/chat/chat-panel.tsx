@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 
 import type { ChatClient } from './api/chat.api';
 import { useChatMessages } from './hooks/use-chat-messages';
+import { isRateLimitHttpClientError } from '../../lib/http-client.error';
 import type { ChatMessage } from './types/chat.types';
 
 const MESSAGE_MAX_LENGTH = 2_000;
@@ -32,10 +33,16 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
   const intent = useRef<{ content: string; idempotencyKey: string } | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
-  const { messages, send, sendMutation } = useChatMessages({ client, widgetId });
+  const { messages, rateLimit, send, sendMutation } = useChatMessages({ client, widgetId });
   const normalizedDraft = draft.trim();
   const draftLength = Array.from(normalizedDraft).length;
-  const canSend = !!normalizedDraft && draftLength <= MESSAGE_MAX_LENGTH && !sendMutation.isPending;
+  const isRateLimitError = isRateLimitHttpClientError(sendMutation.error);
+  const hasGenericSendError = sendMutation.isError && !isRateLimitError;
+  const canSend =
+    !!normalizedDraft &&
+    draftLength <= MESSAGE_MAX_LENGTH &&
+    !sendMutation.isPending &&
+    !rateLimit.isActive;
 
   useEffect(() => {
     if (!stickToBottom.current || !scrollAreaRef.current) return;
@@ -50,7 +57,7 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (sendMutation.isPending) return;
+    if (sendMutation.isPending || rateLimit.isActive) return;
     if (!normalizedDraft) {
       setValidationMessage('Hãy nhập nội dung trước khi gửi.');
       return;
@@ -150,7 +157,7 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
             rows={1}
             value={draft}
             placeholder="Nhập tin nhắn…"
-            aria-invalid={!!validationMessage || sendMutation.isError}
+            aria-invalid={!!validationMessage || hasGenericSendError}
             aria-describedby="chat-composer-feedback chat-composer-note"
             onChange={(event) => handleDraftChange(event.target.value)}
             onKeyDown={handleComposerKeyDown}
@@ -158,17 +165,33 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
           <button
             type="submit"
             disabled={!canSend}
-            aria-label={sendMutation.isError ? 'Thử gửi lại tin nhắn' : 'Gửi tin nhắn'}
+            aria-label={
+              rateLimit.isActive
+                ? 'Tạm dừng gửi tin nhắn'
+                : hasGenericSendError
+                  ? 'Thử gửi lại tin nhắn'
+                  : 'Gửi tin nhắn'
+            }
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="m5 12 14-7-4 14-3.2-5.8L5 12Z" />
             </svg>
           </button>
         </div>
-        <div id="chat-composer-feedback" className="composer-feedback" aria-live="assertive">
-          {validationMessage ? <span>{validationMessage}</span> : null}
-          {sendMutation.isError ? (
-            <span>Tin nhắn chưa được gửi. Nội dung vẫn được giữ lại để bạn thử lại.</span>
+        <div id="chat-composer-feedback" className="composer-feedback">
+          {validationMessage ? <span role="alert">{validationMessage}</span> : null}
+          {rateLimit.isActive ? (
+            <span className="rate-limit-feedback">
+              <span role="status">Bạn đang gửi quá nhanh. Nội dung vẫn được giữ lại.</span>
+              <span className="rate-limit-countdown" aria-hidden="true">
+                Thử lại sau {rateLimit.remainingSeconds} giây.
+              </span>
+            </span>
+          ) : null}
+          {hasGenericSendError ? (
+            <span role="alert">
+              Tin nhắn chưa được gửi. Nội dung vẫn được giữ lại để bạn thử lại.
+            </span>
           ) : null}
         </div>
         <p id="chat-composer-note" className="composer-note">

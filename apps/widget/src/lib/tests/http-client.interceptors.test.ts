@@ -6,7 +6,7 @@ import axios, {
 } from 'axios';
 import { describe, expect, it } from 'vitest';
 
-import { createHttpClient, HttpClientError } from '../http-client';
+import { createHttpClient, HttpClientError, isRateLimitHttpClientError } from '../http-client';
 
 describe('Widget HTTP client interceptors', () => {
   it('reads the access token lazily from memory for each request', async () => {
@@ -39,7 +39,7 @@ describe('Widget HTTP client interceptors', () => {
     const adapter = async (config: InternalAxiosRequestConfig) => {
       const response = {
         config,
-        data: { error: { code: 'RATE_LIMITED', message: 'Please wait.' } },
+        data: { error: { code: 'MESSAGE_RATE_LIMITED', message: 'Please wait.' } },
         headers: new AxiosHeaders({ 'retry-after': '7', 'x-request-id': 'request-123' }),
         status: 429,
         statusText: 'Too Many Requests',
@@ -53,14 +53,17 @@ describe('Widget HTTP client interceptors', () => {
       );
     };
 
-    await expect(client.get('/messages', { adapter })).rejects.toMatchObject({
+    const normalizedError = await client.get('/messages', { adapter }).catch((error) => error);
+
+    expect(normalizedError).toMatchObject({
       name: 'HttpClientError',
-      code: 'RATE_LIMITED',
+      code: 'MESSAGE_RATE_LIMITED',
       message: 'Please wait.',
       requestId: 'request-123',
       retryAfterSeconds: 7,
       status: 429,
     } satisfies Partial<HttpClientError>);
+    expect(isRateLimitHttpClientError(normalizedError)).toBe(true);
   });
 
   it('normalizes transport failures without leaking Axios internals', async () => {

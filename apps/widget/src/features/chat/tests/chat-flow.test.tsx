@@ -1,12 +1,16 @@
 // @vitest-environment jsdom
 
 import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { destroyChatWidget, mountChatWidget } from '../../../mount-widget';
 import { HttpClientError } from '../../../lib/http-client';
+import { createWidgetQueryClient } from '../../../lib/query-client';
 import type { WidgetSessionClient } from '../../session/api/widget-session.api';
 import type { ChatClient } from '../api/chat.api';
+import { ChatPanel } from '../chat-panel';
 import type { ChatMessage } from '../types/chat.types';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -36,6 +40,36 @@ const sessionClient: WidgetSessionClient = {
 async function flushUi(): Promise<void> {
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
+
+async function mountOpenChat(chatClient: ChatClient): Promise<HTMLElement> {
+  let host!: HTMLElement;
+  await act(async () => {
+    host = mountChatWidget(
+      { apiUrl: 'http://localhost:3000/api/v1', widgetId: 'demo-widget' },
+      document,
+      { chatClient, sessionClient },
+    );
+  });
+  await flushUi();
+  await act(async () =>
+    host.shadowRoot
+      ?.querySelector<HTMLButtonElement>('button[aria-label="Mở cửa sổ chat"]')
+      ?.click(),
+  );
+  await flushUi();
+  return host;
+}
+
+async function enterDraft(
+  composer: HTMLTextAreaElement | null | undefined,
+  value: string,
+): Promise<void> {
+  await act(async () => {
+    const setValue = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+    if (composer) setValue?.call(composer, value);
+    composer?.dispatchEvent(new Event('input', { bubbles: true }));
   });
 }
 
@@ -274,6 +308,136 @@ describe('Widget chat flow', () => {
 
     expect(vi.mocked(chatClient.sendMessage).mock.calls[1]?.[0].idempotencyKey).toBe(firstKey);
     expect(composer?.value).toBe('');
+  });
+
+  it('keeps the draft and disables send while a server rate-limit cooldown is active', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    try {
+      const chatClient: ChatClient = {
+        listMessages: vi.fn().mockResolvedValue([]),
+        sendMessage: vi.fn().mockRejectedValue(
+          new HttpClientError({
+            kind: 'http',
+            status: 429,
+            code: 'MESSAGE_RATE_LIMITED',
+            retryAfterSeconds: 7,
+          }),
+        ),
+      };
+      const host = await mountOpenChat(chatClient);
+
+      const composer = host.shadowRoot?.querySelector<HTMLTextAreaElement>('#chat-message');
+      await enterDraft(composer, 'Xin đừng gửi mất');
+      await act(async () => composer?.form?.requestSubmit());
+      await flushUi();
+
+      const submit = composer?.form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const feedback = host.shadowRoot?.querySelector('#chat-composer-feedback');
+      expect(composer?.value).toBe('Xin đừng gửi mất');
+      expect(submit?.disabled).toBe(true);
+      expect(feedback?.textContent).toContain('Thử lại sau 7 giây');
+      expect(feedback?.textContent).toContain('Nội dung vẫn được giữ lại');
+      expect(chatClient.sendMessage).toHaveBeenCalledTimes(1);
+
+      const liveStatus = feedback?.querySelector('[role="status"]');
+      const announcement = liveStatus?.textContent;
+      expect(announcement).not.toContain('7 giây');
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1_000);
+      });
+
+      expect(liveStatus?.textContent).toBe(announcement);
+      expect(feedback?.textContent).toContain('Thử lại sau 6 giây');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reenables send after cooldown without automatically resending the draft', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    try {
+      const chatClient: ChatClient = {
+        listMessages: vi.fn().mockResolvedValue([]),
+        sendMessage: vi.fn().mockRejectedValue(
+          new HttpClientError({
+            kind: 'http',
+            status: 429,
+            code: 'MESSAGE_RATE_LIMITED',
+            retryAfterSeconds: 2,
+          }),
+        ),
+      };
+      const host = await mountOpenChat(chatClient);
+
+      const composer = host.shadowRoot?.querySelector<HTMLTextAreaElement>('#chat-message');
+      await enterDraft(composer, 'Gửi lại khi tôi yêu cầu');
+      await act(async () => composer?.form?.requestSubmit());
+      await flushUi();
+
+      const submit = composer?.form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+      expect(submit?.disabled).toBe(true);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2_000);
+      });
+
+      expect(submit?.disabled).toBe(false);
+      expect(composer?.value).toBe('Gửi lại khi tôi yêu cầu');
+      expect(chatClient.sendMessage).toHaveBeenCalledTimes(1);
+      expect(host.shadowRoot?.querySelector('#chat-composer-feedback')?.textContent).toBe('');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('clears an active cooldown when the verified session client changes', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    const queryClient = createWidgetQueryClient();
+    const limitedClient: ChatClient = {
+      listMessages: vi.fn().mockResolvedValue([]),
+      sendMessage: vi.fn().mockRejectedValue(
+        new HttpClientError({ kind: 'http', status: 429, retryAfterSeconds: 10 }),
+      ),
+    };
+    const nextSessionClient: ChatClient = {
+      listMessages: vi.fn().mockResolvedValue([]),
+      sendMessage: vi.fn(),
+    };
+
+    try {
+      await act(async () => {
+        root.render(
+          <QueryClientProvider client={queryClient}>
+            <ChatPanel client={limitedClient} widgetId="demo-widget" />
+          </QueryClientProvider>,
+        );
+      });
+      await flushUi();
+
+      const composer = container.querySelector<HTMLTextAreaElement>('#chat-message');
+      await enterDraft(composer, 'Draft thuộc phiên mới');
+      await act(async () => composer?.form?.requestSubmit());
+      await flushUi();
+      expect(composer?.form?.querySelector<HTMLButtonElement>('button')?.disabled).toBe(true);
+
+      await act(async () => {
+        root.render(
+          <QueryClientProvider client={queryClient}>
+            <ChatPanel client={nextSessionClient} widgetId="demo-widget" />
+          </QueryClientProvider>,
+        );
+      });
+
+      expect(composer?.form?.querySelector<HTMLButtonElement>('button')?.disabled).toBe(false);
+      expect(container.querySelector('#chat-composer-feedback')?.textContent).toBe('');
+    } finally {
+      await act(async () => root.unmount());
+      queryClient.clear();
+      vi.useRealTimers();
+    }
   });
 
   it('renders HTML and script-like message content as text only', async () => {
