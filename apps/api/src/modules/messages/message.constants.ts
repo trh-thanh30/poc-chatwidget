@@ -1,0 +1,2 @@
+export const MESSAGE_REPOSITORY = Symbol('MESSAGE_REPOSITORY');
+export const MESSAGE_MAX_LENGTH = 2_000;

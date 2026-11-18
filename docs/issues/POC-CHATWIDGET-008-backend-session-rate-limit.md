@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-008] - Backend Rate Limiting theo Widget Session
 
-Status: blocked
+Status: ready
 Type: feature
 Area: backend
 Blocked by: POC-CHATWIDGET-006

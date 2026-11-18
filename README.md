@@ -178,6 +178,36 @@ Response trả `data.token` và `data.expiresAt`. Các request được bảo v�
 `GET /api/v1/widget-sessions/current`. Backend re-check session, Widget status và allowed origin
 trên mỗi lần verify; CORS không thay thế authorization này.
 
+### Message API và Mock Channel
+
+Các endpoint message chỉ nhận JWT Widget session còn hợp lệ và cùng exact `Origin`:
+
+```http
+POST /api/v1/messages
+Origin: http://localhost:5173
+Authorization: Bearer <widget-session-token>
+Content-Type: application/json
+
+{
+  "content": "Xin chào",
+  "idempotencyKey": "8ceabd90-3554-4d6b-99db-1c44d5a3960e"
+}
+```
+
+`content` là plain text sau khi trim, dài tối đa 2.000 ký tự. `idempotencyKey` là UUID v4 do
+client tạo; retry cùng key trong một session trả lại message đã có và không forward lại channel.
+Response `201` trả message visitor trong `data.message`.
+
+```http
+GET /api/v1/messages
+Origin: http://localhost:5173
+Authorization: Bearer <widget-session-token>
+```
+
+Response `200` trả `data.messages` chỉ thuộc session hiện tại. Mock Channel là adapter mặc định:
+message `Xin chào` tạo reply deterministic `Mock reply: Xin chào`, không gọi dịch vụ ngoài. UI,
+polling và active composer thuộc task frontend tiếp theo.
+
 Widget tự bootstrap session khi mount. Loading, denied, unknown Widget và network failure được
 hiển thị thành các trạng thái riêng; network failure có thể retry. Token chỉ nằm trong memory của
 Widget runtime, không được đưa vào DOM, URL, local/session storage hoặc logs.

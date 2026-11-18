@@ -46,6 +46,6 @@ const JWT_AUDIENCE = 'poc-chatwidget';
       }),
     },
   ],
-  exports: [WidgetSessionGuard],
+  exports: [VerifyWidgetSessionUseCase, WidgetSessionGuard],
 })
 export class WidgetSessionsModule {}

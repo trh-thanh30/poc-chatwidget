@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-007] - Frontend Chat UI và Message Flow
 
-Status: blocked
+Status: ready
 Type: feature
 Area: frontend
 Blocked by: POC-CHATWIDGET-005, POC-CHATWIDGET-006

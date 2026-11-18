@@ -42,13 +42,14 @@ deterministic.
   demo host đã hoạt động.
 - Backend đã có Widget/allowed-origin/session schema, migration, `demo-widget` seed và API cấp/xác
   thực JWT session gắn với exact origin. Create/verify flow nằm trong use case; common HTTP module
-  sở hữu stable errors, request ID và privacy-safe logging. Message API, rate limiting và Zalo
-  integration chưa được triển khai.
+  sở hữu stable errors, request ID và privacy-safe logging. Message schema, protected list/send
+  API, session isolation, idempotency và deterministic Mock Channel đã hoạt động; rate limiting và
+  Zalo integration chưa được triển khai.
 - Widget bootstrap session qua Axios khi mount và hiển thị riêng trạng thái initializing, ready,
   denied, not-found và unavailable; JWT chỉ giữ trong React memory. Composer vẫn bị disable có chủ
   đích.
-- PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle business schema/migration
-  cho Widget session đã có; BullMQ consumer vẫn chưa được triển khai.
+- PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle migration cho Widget
+  session và short-lived messages đã có; BullMQ consumer vẫn chưa được triển khai.
 
 ## Delivery Model
 

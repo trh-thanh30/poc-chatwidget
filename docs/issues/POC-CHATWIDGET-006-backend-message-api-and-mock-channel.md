@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-006] - Backend Message API và Mock Channel
 
-Status: ready
+Status: completed
 Type: feature
 Area: backend
 Blocked by: POC-CHATWIDGET-012
@@ -33,12 +33,12 @@ không cần tài khoản Zalo.
 
 ## Acceptance Criteria
 
-- [ ] Verified session gửi/lấy message và nhận Mock reply không gọi dịch vụ ngoài.
-- [ ] Session A không đọc/ghi session B.
-- [ ] Empty/whitespace/oversized content bị từ chối.
-- [ ] Cùng idempotency key không tạo duplicate.
-- [ ] HTML/script được trả như plain text, không trusted HTML.
-- [ ] Invalid/expired/cross-origin session không gọi channel.
+- [x] Verified session gửi/lấy message và nhận Mock reply không gọi dịch vụ ngoài.
+- [x] Session A không đọc/ghi session B.
+- [x] Empty/whitespace/oversized content bị từ chối.
+- [x] Cùng idempotency key không tạo duplicate.
+- [x] HTML/script được trả như plain text, không trusted HTML.
+- [x] Invalid/expired/cross-origin session không gọi channel.
 
 ## Out of Scope
 
@@ -51,3 +51,11 @@ pnpm --filter @chat-widget/api check-types
 pnpm test
 pnpm --filter @chat-widget/api build
 ```
+
+## Notes
+
+Ngày 2026-11-18, Message schema/migration, Drizzle repository, protected list/send endpoints và
+deterministic Mock Channel đã hoàn thành. Full quality gate pass với 48 tests; repository
+integration test pass trên PostgreSQL local. Production-provider smoke test xác nhận
+session → send `201` → list `200` trả visitor message và Mock operator reply; HTTP log không chứa
+JWT hoặc message content.

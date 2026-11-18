@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-010] - Backend Zalo Personal Channel hai chiều
 
-Status: blocked
+Status: ready-for-human
 Type: feature
 Area: backend
 Blocked by: POC-CHATWIDGET-006

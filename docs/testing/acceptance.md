@@ -32,3 +32,10 @@ pnpm build
 Mỗi backend/frontend capability pair phải bổ sung test riêng cho allowed origin, session
 bootstrap UI, session isolation, Mock Channel round-trip, 5/10-second rate limit, cooldown UX,
 Zalo mapping và network error handling.
+
+Drizzle repository integration test cần PostgreSQL local đã migrate và được bật tường minh:
+
+```bash
+RUN_DATABASE_TESTS=1 pnpm vitest run \
+  apps/api/src/modules/messages/tests/drizzle-message.repository.spec.ts
+```

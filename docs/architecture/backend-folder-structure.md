@@ -58,13 +58,26 @@ apps/api/
 │   ├── database/
 │   │   ├── migrations/
 │   │   ├── schema/
+│   │   │   ├── messages.ts
+│   │   │   └── widgets.ts
 │   │   ├── database.module.ts
 │   │   └── database.service.ts
 │   ├── modules/
+│   │   ├── channels/
+│   │   │   ├── chat-channel.ts
+│   │   │   └── mock-chat.channel.ts
 │   │   ├── health/
 │   │   │   ├── tests/
 │   │   │   ├── health.controller.ts
 │   │   │   └── health.module.ts
+│   │   ├── messages/
+│   │   │   ├── dto/
+│   │   │   ├── repository/
+│   │   │   ├── tests/
+│   │   │   ├── types/
+│   │   │   ├── use-cases/
+│   │   │   ├── messages.controller.ts
+│   │   │   └── messages.module.ts
 │   │   └── widget-sessions/
 │   │       ├── dto/
 │   │       ├── repository/
@@ -87,10 +100,11 @@ apps/api/
 └── tsconfig.json
 ```
 
-API cung cấp health endpoint và Widget session API. Drizzle sở hữu schema/migration cho Widget,
-allowed origin và short-lived session. Create/verify use cases sở hữu business flow;
-`WidgetSessionGuard` chỉ lấy transport context rồi gọi verify use case. Message, rate limiter và
-Zalo adapter chưa được triển khai.
+API cung cấp health, Widget session và protected list/send Message API. Drizzle sở hữu
+schema/migration cho Widget, allowed origin, short-lived session và message. Create/verify/send/list
+use cases sở hữu business flow; `WidgetSessionGuard` chỉ lấy transport context rồi gọi verify use
+case. `MockChatChannel` tạo reply deterministic sau `ChatChannel`; rate limiter và Zalo adapter
+chưa được triển khai.
 
 ## Current File Roles
 
