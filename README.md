@@ -42,17 +42,18 @@ Chi tiết: [Architecture overview](docs/architecture/overview.md),
 
 ## Technology Stack
 
-| Layer          | Technology                        | Purpose                                                   |
-| -------------- | --------------------------------- | --------------------------------------------------------- |
-| Workspace      | pnpm 10, Turborepo                | Dependency management và task orchestration               |
-| Widget UI      | React 19, React DOM 19            | Isolated UI tree trong Shadow Root                        |
-| Frontend build | Vite 7, TypeScript 5.9            | IIFE artifact và demo dev server                          |
-| Frontend data  | Axios, TanStack Query             | HTTP transport, server state và polling                   |
-| UI primitives  | shadcn/ui khi cần                 | Source primitives tối thiểu, style inject vào Shadow Root |
-| Backend        | NestJS 11, Config, JWT, Throttler | REST API, validated config, session token và anti-spam    |
-| Persistence    | PostgreSQL, Drizzle ORM/Kit       | Typed schema, query và SQL migrations                     |
-| Testing        | Vitest 4, jsdom, Supertest        | Unit, component và HTTP integration tests                 |
-| Quality        | ESLint 9, Prettier 3              | Static analysis và formatting                             |
+| Layer             | Technology                        | Purpose                                                   |
+| ----------------- | --------------------------------- | --------------------------------------------------------- |
+| Workspace         | pnpm 10, Turborepo                | Dependency management và task orchestration               |
+| Widget UI         | React 19, React DOM 19            | Isolated UI tree trong Shadow Root                        |
+| Frontend build    | Vite 7, TypeScript 5.9            | IIFE artifact và demo dev server                          |
+| Frontend data     | Axios, TanStack Query             | HTTP transport, server state và polling                   |
+| UI primitives     | shadcn/ui khi cần                 | Source primitives tối thiểu, style inject vào Shadow Root |
+| Backend           | NestJS 11, Config, JWT, Throttler | REST API, validated config, session token và anti-spam    |
+| Persistence       | PostgreSQL, Drizzle ORM/Kit       | Typed schema, query và SQL migrations                     |
+| Queue-ready infra | Redis 7                           | Local AOF service; BullMQ chỉ thêm khi có consumer        |
+| Testing           | Vitest 4, jsdom, Supertest        | Unit, component và HTTP integration tests                 |
+| Quality           | ESLint 9, Prettier 3              | Static analysis và formatting                             |
 
 Axios và TanStack Query đã nằm trong Widget dependency baseline. shadcn/ui chỉ được thêm theo từng
 primitive thực sự sử dụng để giữ bundle nhỏ và không phá Shadow DOM styling. Không đặt app runtime
@@ -130,6 +131,16 @@ Workspace dùng `minimumReleaseAge` trong `pnpm-workspace.yaml`; package mới c
 cài ngay sau khi vừa publish.
 
 ## Development
+
+Prepare local PostgreSQL first:
+
+```bash
+cp .env.example .env
+pnpm infra:dev:up
+```
+
+See [Local Infrastructure](docs/integrations/local-infrastructure.md) for environment overrides,
+Drizzle commands, persistence behavior and the explicit destructive-reset procedure.
 
 Chạy toàn bộ workspace:
 
@@ -210,6 +221,7 @@ pnpm build
 | [Frontend structure](docs/architecture/frontend-folder-structure.md) | Widget, React, Shadow DOM và frontend data rules                     |
 | [Backend structure](docs/architecture/backend-folder-structure.md)   | NestJS, Drizzle, security và channel boundaries                      |
 | [Acceptance testing](docs/testing/acceptance.md)                     | Automated gates và manual smoke checks                               |
+| [Local infrastructure](docs/integrations/local-infrastructure.md)    | PostgreSQL Compose, environment và Drizzle commands                  |
 | [Agent workflow](AGENTS.md)                                          | Required workflow cho coding agents                                  |
 | [Security policy](SECURITY.md)                                       | Credential, session và vulnerability handling                        |
 

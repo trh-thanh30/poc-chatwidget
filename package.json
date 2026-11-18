@@ -12,7 +12,16 @@
     "lint": "eslint .",
     "check-types": "pnpm --recursive --if-present run check-types",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "infra:dev:up": "docker compose -f docker-compose.dev.yml up -d --wait db redis",
+    "infra:dev:down": "docker compose -f docker-compose.dev.yml down",
+    "infra:dev:logs": "docker compose -f docker-compose.dev.yml logs -f db redis",
+    "infra:dev:ps": "docker compose -f docker-compose.dev.yml ps",
+    "infra:dev:config": "docker compose -f docker-compose.dev.yml config",
+    "db:generate": "pnpm --filter @chat-widget/api db:generate",
+    "db:migrate": "pnpm --filter @chat-widget/api db:migrate",
+    "db:seed": "pnpm --filter @chat-widget/api db:seed",
+    "db:studio": "pnpm --filter @chat-widget/api db:studio"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

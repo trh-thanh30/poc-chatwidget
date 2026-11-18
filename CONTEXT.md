@@ -38,6 +38,8 @@ deterministic.
   demo host đã hoạt động.
 - Chat API, persistence, origin whitelist, rate limiting và Zalo integration chưa được triển khai.
 - Composer trong Widget hiện bị disable có chủ đích.
+- PostgreSQL/Redis Compose definitions, dependency baseline và Drizzle command wiring đã có;
+  business schema/migration và BullMQ consumer vẫn chưa được triển khai.
 
 ## Delivery Model
 

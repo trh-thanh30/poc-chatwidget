@@ -1,0 +1,46 @@
+name: poc-chatwidget-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-poc_chatwidget}
+      POSTGRES_USER: ${POSTGRES_USER:-poc_chatwidget_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-poc_chatwidget_password}
+    ports:
+      - '127.0.0.1:${DEV_DB_PORT:-15432}:5432'
+    volumes:
+      - poc_chatwidget_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --requirepass
+      - ${REDIS_PASSWORD:-poc_chatwidget_redis_password}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-poc_chatwidget_redis_password}
+    ports:
+      - '127.0.0.1:${DEV_REDIS_PORT:-16379}:6379'
+    volumes:
+      - poc_chatwidget_redis_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" ping 2>/dev/null | grep PONG']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  poc_chatwidget_postgres_data:
+  poc_chatwidget_redis_data:

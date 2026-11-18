@@ -25,6 +25,7 @@ không để controller, database hay thư viện Zalo phụ thuộc trực ti�
 | Session token  | `@nestjs/jwt`                         | HS256 JWT signing và verification            |
 | DTO validation | class-validator/transformer           | Global request validation                    |
 | Throttling     | `@nestjs/throttler`                   | Extensible HTTP rate-limit policy            |
+| Local services | PostgreSQL 16, Redis 7 (Compose)      | Persistence và queue-ready infrastructure    |
 
 ### Đã chọn nhưng chưa cài đặt
 
@@ -47,14 +48,17 @@ apps/api/
 │   ├── app.controller.test.ts
 │   ├── app.module.ts
 │   └── main.ts
+├── scripts/
+│   └── seed.ts
+├── drizzle.config.ts
 ├── nest-cli.json
 ├── package.json
 ├── tsconfig.build.json
 └── tsconfig.json
 ```
 
-API hiện chỉ cung cấp `GET /api/v1/health`. Chưa có database, whitelist, session, rate limiter
-hoặc Zalo adapter.
+API hiện chỉ cung cấp `GET /api/v1/health`. Drizzle command/config wiring đã có nhưng chưa có
+business schema, migration, database provider, whitelist, session, rate limiter hoặc Zalo adapter.
 
 ## Current File Roles
 
