@@ -1,9 +1,9 @@
 # [POC-CHATWIDGET-006] - Backend Message API và Mock Channel
 
-Status: blocked
+Status: ready
 Type: feature
 Area: backend
-Blocked by: POC-CHATWIDGET-004
+Blocked by: POC-CHATWIDGET-012
 
 ## Parent
 

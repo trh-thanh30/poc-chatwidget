@@ -137,6 +137,8 @@ Prepare local PostgreSQL first:
 ```bash
 cp .env.example .env
 pnpm infra:dev:up
+pnpm db:migrate
+pnpm db:seed
 ```
 
 See [Local Infrastructure](docs/integrations/local-infrastructure.md) for environment overrides,
@@ -155,6 +157,26 @@ Development endpoints:
 | Demo host    | <http://localhost:5173>               |
 | Widget asset | <http://localhost:4173/widget.js>     |
 | API health   | <http://localhost:3000/api/v1/health> |
+
+Development seed tạo Widget ID `demo-widget` và cho phép exact origin
+`http://localhost:5173`.
+
+### Widget Session API
+
+Tạo short-lived session từ browser origin đã được whitelist:
+
+```http
+POST /api/v1/widget-sessions
+Origin: http://localhost:5173
+Content-Type: application/json
+
+{"widgetId":"demo-widget"}
+```
+
+Response trả `data.token` và `data.expiresAt`. Các request được bảo vệ gửi token qua
+`Authorization: Bearer <token>` và phải giữ nguyên `Origin`; endpoint kiểm chứng hiện tại là
+`GET /api/v1/widget-sessions/current`. Backend re-check session, Widget status và allowed origin
+trên mỗi lần verify; CORS không thay thế authorization này.
 
 Widget dev command build artifact trước, sau đó chạy Vite build watch và preview server. Nếu demo
 được mở trước khi cổng `4173` sẵn sàng, reload host page sau khi Widget server khởi động.

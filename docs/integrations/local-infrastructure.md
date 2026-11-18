@@ -16,6 +16,8 @@ cp .env.example .env
 pnpm install --frozen-lockfile
 pnpm infra:dev:up
 pnpm infra:dev:ps
+pnpm db:migrate
+pnpm db:seed
 ```
 
 Default connection:
@@ -43,8 +45,9 @@ Port `15432` avoids colliding with a PostgreSQL service already using `5432`. Wh
 | `pnpm db:seed`          | Run the application seed entrypoint                             |
 | `pnpm db:studio`        | Open Drizzle Studio                                             |
 
-Business schema, migrations and `demo-widget` seed are intentionally introduced with the backend
-session capability, not the infrastructure baseline.
+The committed Widget/session migration is owned by the backend session capability. The idempotent
+seed creates `demo-widget` with exact allowed origin `http://localhost:5173`; run it again safely
+after local database changes.
 
 ## Persistence behavior
 

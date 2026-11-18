@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { AppController } from './app.controller';
+import { HealthController } from '../health.controller';
 
-describe('AppController', () => {
+describe('HealthController', () => {
   it('reports a healthy API skeleton', () => {
-    expect(new AppController().health()).toEqual({
+    expect(new HealthController().health()).toEqual({
       service: 'chat-widget-api',
       status: 'ok',
     });

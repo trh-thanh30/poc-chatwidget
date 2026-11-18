@@ -19,7 +19,7 @@ export default defineConfig({
   migrations: {
     prefix: 'timestamp',
   },
-  out: './drizzle',
+  out: './src/database/migrations',
   schema: './src/database/schema/**/*.ts',
   strict: true,
   verbose: true,

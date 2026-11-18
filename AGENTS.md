@@ -64,6 +64,19 @@ Repo dùng single-context: `CONTEXT.md` ở root và ADR trong `docs/adr/`. Xem
   `apps/demo`.
 - Đọc `docs/architecture/backend-folder-structure.md` trước khi thêm module vào `apps/api`.
 
+## Backend module rules
+
+- Business flow nằm trong `use-cases/`; controller/guard chỉ nhận transport context và gọi use case.
+- Service chỉ giữ capability domain/kỹ thuật dùng lại bởi nhiều use case; không dùng service như nơi
+  gom mọi business logic.
+- Module có behavior/persistence tạo `dto/`, `repository/`, `use-cases/` và `tests/` ngay khi vai trò
+  đó xuất hiện.
+- Khi có từ hai file cùng trách nhiệm, chuyển toàn bộ vào folder số nhiều tương ứng như
+  `controllers/`, `services/`, `guards/`, `types/` hoặc `interceptors/`.
+- Mọi backend `*.test.ts` và `*.spec.ts` phải nằm trong folder `tests/`; không đưa test vào production
+  build.
+- `<module>.module.ts` chính luôn nằm ở root module và không tạo folder rỗng.
+
 ## Quality gate
 
 Trước khi hoàn thành thay đổi code, chạy:

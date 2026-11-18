@@ -44,8 +44,38 @@ song vì sẽ tạo hai persistence convention cho cùng một POC.
 ```text
 apps/api/
 ├── src/
-│   ├── app.controller.ts
-│   ├── app.controller.test.ts
+│   ├── common/
+│   │   ├── errors/
+│   │   ├── filters/
+│   │   ├── http/
+│   │   ├── interceptors/
+│   │   ├── tests/
+│   │   ├── types/
+│   │   └── common.module.ts
+│   ├── config/
+│   │   ├── configuration.ts
+│   │   └── env.schema.ts
+│   ├── database/
+│   │   ├── migrations/
+│   │   ├── schema/
+│   │   ├── database.module.ts
+│   │   └── database.service.ts
+│   ├── modules/
+│   │   ├── health/
+│   │   │   ├── tests/
+│   │   │   ├── health.controller.ts
+│   │   │   └── health.module.ts
+│   │   └── widget-sessions/
+│   │       ├── dto/
+│   │       ├── repository/
+│   │       ├── services/
+│   │       ├── tests/
+│   │       ├── types/
+│   │       ├── use-cases/
+│   │       ├── widget-session.guard.ts
+│   │       ├── widget-sessions.controller.ts
+│   │       └── widget-sessions.module.ts
+│   ├── tests/
 │   ├── app.module.ts
 │   └── main.ts
 ├── scripts/
@@ -57,8 +87,10 @@ apps/api/
 └── tsconfig.json
 ```
 
-API hiện chỉ cung cấp `GET /api/v1/health`. Drizzle command/config wiring đã có nhưng chưa có
-business schema, migration, database provider, whitelist, session, rate limiter hoặc Zalo adapter.
+API cung cấp health endpoint và Widget session API. Drizzle sở hữu schema/migration cho Widget,
+allowed origin và short-lived session. Create/verify use cases sở hữu business flow;
+`WidgetSessionGuard` chỉ lấy transport context rồi gọi verify use case. Message, rate limiter và
+Zalo adapter chưa được triển khai.
 
 ## Current File Roles
 
@@ -85,10 +117,9 @@ Không được phép:
 Root module chỉ compose infrastructure và feature modules. Khi feature xuất hiện, không thêm
 provider của mọi feature trực tiếp vào đây.
 
-### `src/app.controller.ts`
+### `src/modules/health/health.controller.ts`
 
-Hiện sở hữu health endpoint. Khi API lớn hơn, health có thể chuyển vào `modules/health/`, nhưng
-không cần tạo folder trước khi có thêm health dependency/check.
+Sở hữu health endpoint độc lập. Health module không import Widget session business logic.
 
 ## Target Structure Khi Backend Feature Xuất Hiện
 
@@ -98,8 +129,11 @@ Không tạo trước folder rỗng. Cấu trúc mục tiêu cho các task white
 apps/api/src/
 ├── common/
 │   ├── errors/
-│   ├── guards/
-│   └── http/
+│   ├── filters/
+│   ├── http/
+│   ├── interceptors/
+│   ├── tests/
+│   └── types/
 ├── config/
 │   ├── configuration.ts
 │   └── env.schema.ts
@@ -112,8 +146,8 @@ apps/api/src/
 │       ├── messages.ts
 │       └── widgets.ts
 ├── modules/
-│   ├── widgets/
-│   ├── chat-sessions/
+│   ├── health/
+│   ├── widget-sessions/
 │   ├── messages/
 │   └── channels/
 │       ├── chat-channel.ts
@@ -123,8 +157,9 @@ apps/api/src/
 └── main.ts
 ```
 
-Folder chỉ được tạo khi có file thực sự dùng. Một module nhỏ có thể bắt đầu phẳng và tách
-`application/`, `domain/`, `infrastructure/` khi số behavior đủ lớn.
+Folder chỉ được tạo khi có file thực sự dùng. `dto/`, `repository/`, `use-cases/` và `tests/` là
+folder kiến trúc, được tạo ngay khi vai trò xuất hiện. Controller/service/guard/type đơn lẻ có thể
+nằm ở root module; từ hai file cùng trách nhiệm trở lên phải chuyển toàn bộ vào folder số nhiều.
 
 ## Feature Module Shape
 
@@ -132,17 +167,25 @@ Một feature điển hình có thể phát triển theo cấu trúc:
 
 ```text
 modules/messages/
+├── messages.module.ts
+├── messages.controller.ts
 ├── dto/
 │   └── send-message.dto.ts
 ├── policies/
 │   └── message-rate-limit.policy.ts
-├── repositories/
+├── repository/
 │   ├── message.repository.ts
 │   └── drizzle-message.repository.ts
-├── send-message.use-case.ts
-├── messages.controller.ts
-├── messages.module.ts
-└── messages.types.ts
+├── use-cases/
+│   ├── send-message.use-case.ts
+│   └── list-messages.use-case.ts
+├── services/
+│   └── message-content.service.ts
+├── types/
+│   └── messages.types.ts
+└── tests/
+    ├── send-message.use-case.spec.ts
+    └── messages.http.spec.ts
 ```
 
 ### Layer rules
@@ -150,9 +193,13 @@ modules/messages/
 - Controller parse HTTP input, gọi use case và map output; không query Drizzle trực tiếp.
 - DTO mô tả public transport contract; không tái sử dụng database row như request DTO.
 - Use case điều phối domain policy, repository và channel.
+- Use case sở hữu một business flow hoàn chỉnh và là test surface ưu tiên.
+- Service chỉ giữ capability domain/kỹ thuật dùng lại bởi nhiều use case. Logic chỉ dùng trong một
+  flow phải ở lại use case; service không phải catch-all business layer.
 - Policy giữ rule như whitelist hoặc `5 messages / 10 seconds` để test độc lập.
 - Repository interface thuộc module sử dụng; Drizzle implementation là infrastructure detail.
 - Module export public token/provider tối thiểu, không export toàn bộ internals.
+- Mọi `*.test.ts`/`*.spec.ts` backend nằm trong `tests/` và bị loại khỏi production build.
 
 Không bắt buộc tạo class cho từng hàm. Tách layer dựa trên boundary cần thay thế/test, không dựa
 trên ceremony.

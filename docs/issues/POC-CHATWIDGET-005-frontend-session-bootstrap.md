@@ -1,9 +1,9 @@
 # [POC-CHATWIDGET-005] - Frontend Widget Session Bootstrap
 
-Status: blocked
+Status: ready
 Type: feature
 Area: frontend
-Blocked by: POC-CHATWIDGET-004
+Blocked by: POC-CHATWIDGET-012
 
 ## Parent
 

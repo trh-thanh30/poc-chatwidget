@@ -6,7 +6,7 @@ export type HealthResponse = {
 };
 
 @Controller()
-export class AppController {
+export class HealthController {
   @Get('health')
   health(): HealthResponse {
     return {

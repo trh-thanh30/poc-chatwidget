@@ -24,6 +24,10 @@ deterministic.
 - **External message ID**: ID của tin nhắn do channel bên ngoài trả về, dùng cho mapping và
   idempotency.
 - **Vertical slice**: task nhỏ nhưng hoàn chỉnh qua các layer cần thiết và kiểm chứng độc lập.
+- **Use case**: một business flow backend hoàn chỉnh, không phụ thuộc HTTP request/response và điều
+  phối repository cùng capability hỗ trợ.
+- **Supporting service**: capability domain/kỹ thuật dùng lại bởi nhiều use case, ví dụ normalize
+  origin hoặc ký/verify JWT; không phải nơi gom business flow.
 
 ## Terms to Avoid
 
@@ -36,10 +40,13 @@ deterministic.
 
 - Monorepo, NestJS skeleton, embed IIFE, launcher/panel, Shadow DOM isolation, responsive UI và
   demo host đã hoạt động.
-- Chat API, persistence, origin whitelist, rate limiting và Zalo integration chưa được triển khai.
+- Backend đã có Widget/allowed-origin/session schema, migration, `demo-widget` seed và API cấp/xác
+  thực JWT session gắn với exact origin. Create/verify flow nằm trong use case; common HTTP module
+  sở hữu stable errors, request ID và privacy-safe logging. Message API, rate limiting và Zalo
+  integration chưa được triển khai.
 - Composer trong Widget hiện bị disable có chủ đích.
-- PostgreSQL/Redis Compose definitions, dependency baseline và Drizzle command wiring đã có;
-  business schema/migration và BullMQ consumer vẫn chưa được triển khai.
+- PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle business schema/migration
+  cho Widget session đã có; BullMQ consumer vẫn chưa được triển khai.
 
 ## Delivery Model
 

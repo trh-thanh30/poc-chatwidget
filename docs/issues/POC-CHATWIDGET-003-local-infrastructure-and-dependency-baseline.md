@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-003] - Local Infrastructure và Dependency Baseline
 
-Status: blocked
+Status: completed
 Type: infra
 Area: tooling
 Blocked by: POC-CHATWIDGET-002
@@ -43,11 +43,11 @@ lại infrastructure phổ biến.
 
 ## Acceptance Criteria
 
-- [ ] `pnpm infra:dev:up` khởi động PostgreSQL/Redis và cả hai service chuyển sang healthy.
-- [ ] PostgreSQL/Redis sử dụng named volumes và giữ dữ liệu sau container restart.
+- [x] `pnpm infra:dev:up` khởi động PostgreSQL/Redis và cả hai service chuyển sang healthy.
+- [x] PostgreSQL/Redis sử dụng named volumes và giữ dữ liệu sau container restart.
 - [x] Ports, database username/password và Redis password override được bằng environment.
-- [ ] `DATABASE_URL` từ `.env.example` kết nối được từ API chạy trên host.
-- [ ] `REDIS_URL` từ `.env.example` authenticate và ping được từ host.
+- [x] `DATABASE_URL` từ `.env.example` kết nối được từ API chạy trên host.
+- [x] `REDIS_URL` từ `.env.example` authenticate và ping được từ host.
 - [x] `pnpm infra:dev:config` render Compose config hợp lệ.
 - [x] Có lệnh logs, status và shutdown không xóa volume.
 - [x] Reset volume chỉ được document như thao tác explicit/destructive.
@@ -75,7 +75,6 @@ pnpm build
 ## Notes
 
 Ngày 2026-11-18, Compose config, environment overrides, scripts, Drizzle config loading, frozen
-install và quality gate đều pass. Runtime health, PostgreSQL/Redis connections và volume
-persistence chưa thể xác nhận vì Docker CLI có sẵn nhưng cả system daemon và Docker Desktop daemon
-đều không chạy trong môi trường kiểm thử. Tiếp tục các AC runtime còn lại sau khi Docker daemon
-được bật.
+install và quality gate đều pass. PostgreSQL/Redis đều healthy; host process kết nối được bằng
+`DATABASE_URL`/`REDIS_URL`. Marker tạm trong PostgreSQL và Redis AOF vẫn tồn tại sau container
+restart, sau đó đã được dọn sạch.

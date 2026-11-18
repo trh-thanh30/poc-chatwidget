@@ -8,15 +8,15 @@ cho owner khác nhau; khi cả hai hoàn thành thì capability end-to-end mới
 | Capability          | Infrastructure/BE | Frontend           | Kết quả end-to-end                           |
 | ------------------- | ----------------- | ------------------ | -------------------------------------------- |
 | Foundation          | `002`, `003`      | `002`              | Isolated embed + local PostgreSQL/tooling    |
-| Session & whitelist | `004`             | `005`              | Allowed host nhận JWT Widget session         |
+| Session & whitelist | `004`, `012`      | `005`              | Allowed host nhận JWT Widget session         |
 | Mock chat           | `006`             | `007`              | Visitor gửi và nhận Mock reply               |
 | Anti-spam           | `008`             | `009`              | Backend limit + cooldown UX                  |
 | Zalo Personal       | `010`             | Không cần UI riêng | Cùng message contract, đổi channel adapter   |
 | Handoff             | `011`             | `011`              | Full integration, packaging và documentation |
 
 ```text
-002 -> 003 -> 004
-004 -> 005, 006
+002 -> 003 -> 004 -> 012
+012 -> 005, 006
 005 + 006 -> 007
 006 -> 008, 010
 007 + 008 -> 009

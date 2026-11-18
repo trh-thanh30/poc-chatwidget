@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
+import { CommonModule } from './common/common.module';
+import { applicationConfigModule } from './config/configuration';
+import { HealthModule } from './modules/health/health.module';
+import { WidgetSessionsModule } from './modules/widget-sessions/widget-sessions.module';
 
 @Module({
-  controllers: [AppController],
+  imports: [applicationConfigModule, CommonModule, HealthModule, WidgetSessionsModule],
 })
 export class AppModule {}

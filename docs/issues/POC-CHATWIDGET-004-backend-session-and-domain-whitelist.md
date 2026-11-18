@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-004] - Backend Chat Session và Domain Whitelist
 
-Status: blocked
+Status: completed
 Type: feature
 Area: backend
 Blocked by: POC-CHATWIDGET-003
@@ -50,15 +50,15 @@ dùng NestJS JWT thay vì tự xây token format.
 
 ## Acceptance Criteria
 
-- [ ] Allowed origin tạo session và nhận JWT + expiry.
-- [ ] Unknown Widget trả `404`; disabled Widget hoặc disallowed origin trả `403`.
-- [ ] JWT signature, issuer, audience và expiry đều được verify.
-- [ ] Token bị sửa hoặc hết hạn trả `401` mà không lộ verification detail.
-- [ ] Token origin A không dùng được từ origin B, kể cả B cũng được whitelist.
-- [ ] Widget bị disable, session bị revoke/expired hoặc origin bị xóa thì JWT cũ không còn hợp lệ.
-- [ ] Scheme, hostname casing và default/explicit port được normalize/test.
-- [ ] Client sửa body/header/token không bypass backend enforcement.
-- [ ] Migration và seed chạy được trên PostgreSQL sạch; seed chạy lại không tạo duplicate.
+- [x] Allowed origin tạo session và nhận JWT + expiry.
+- [x] Unknown Widget trả `404`; disabled Widget hoặc disallowed origin trả `403`.
+- [x] JWT signature, issuer, audience và expiry đều được verify.
+- [x] Token bị sửa hoặc hết hạn trả `401` mà không lộ verification detail.
+- [x] Token origin A không dùng được từ origin B, kể cả B cũng được whitelist.
+- [x] Widget bị disable, session bị revoke/expired hoặc origin bị xóa thì JWT cũ không còn hợp lệ.
+- [x] Scheme, hostname casing và default/explicit port được normalize/test.
+- [x] Client sửa body/header/token không bypass backend enforcement.
+- [x] Migration và seed chạy được trên PostgreSQL sạch; seed chạy lại không tạo duplicate.
 
 ## Out of Scope
 
@@ -74,3 +74,9 @@ pnpm --filter @chat-widget/api check-types
 pnpm test
 pnpm --filter @chat-widget/api build
 ```
+
+## Notes
+
+Ngày 2026-11-18, migration đã apply trên PostgreSQL local; seed chạy hai lần vẫn chỉ có một record
+allowed origin cho `demo-widget`. HTTP tests cover origin/JWT/session revocation boundaries và smoke
+test bằng API build thật đã tạo rồi verify session qua PostgreSQL thành công.
