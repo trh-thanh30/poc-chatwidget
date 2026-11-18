@@ -1,5 +1,6 @@
 import { createRoot, type Root } from 'react-dom/client';
 
+import type { ChatClient } from './features/chat/api/chat.api';
 import type { WidgetSessionClient } from './features/session/api/widget-session.api';
 import { ChatWidget, type ChatWidgetConfig } from './widget';
 import widgetStyles from './styles.css?inline';
@@ -9,6 +10,7 @@ export const WIDGET_HOST_ID = 'poc-chatwidget-root';
 const mountedRoots = new WeakMap<HTMLElement, Root>();
 
 export type WidgetRuntimeDependencies = {
+  chatClient?: ChatClient;
   sessionClient?: WidgetSessionClient;
 };
 
@@ -37,7 +39,13 @@ export function mountChatWidget(
 
   const root = createRoot(mountPoint);
   mountedRoots.set(host, root);
-  root.render(<ChatWidget config={config} sessionClient={dependencies.sessionClient} />);
+  root.render(
+    <ChatWidget
+      config={config}
+      chatClient={dependencies.chatClient}
+      sessionClient={dependencies.sessionClient}
+    />,
+  );
 
   return host;
 }

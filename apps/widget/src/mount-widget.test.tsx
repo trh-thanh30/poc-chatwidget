@@ -51,8 +51,10 @@ describe('mountChatWidget', () => {
     const closeButton = host.shadowRoot?.querySelector<HTMLButtonElement>(
       'button[aria-label="Đóng cửa sổ chat"]',
     );
-    await act(async () => closeButton?.click());
+    expect(host.shadowRoot?.activeElement).toBe(closeButton);
+    await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
 
     expect(host.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    expect(host.shadowRoot?.activeElement).toBe(launcher);
   });
 });

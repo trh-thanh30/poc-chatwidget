@@ -1,8 +1,12 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type SVGProps } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type SVGProps } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
 
+import { createChatClient, type ChatClient } from './features/chat/api/chat.api';
+import { ChatPanel } from './features/chat/chat-panel';
 import type { WidgetSessionClient } from './features/session/api/widget-session.api';
 import { SessionState } from './features/session/components/session-state';
 import { useWidgetSession } from './features/session/hooks/use-widget-session';
+import { createWidgetQueryClient } from './lib/query-client';
 
 export type ChatWidgetConfig = {
   apiUrl?: string;
@@ -37,13 +41,16 @@ function ArrowIcon(props: IconProps) {
 }
 
 export function ChatWidget({
+  chatClient: chatClientOverride,
   config,
   sessionClient,
 }: {
+  chatClient?: ChatClient;
   config: ChatWidgetConfig;
   sessionClient?: WidgetSessionClient;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [queryClient] = useState(createWidgetQueryClient);
   const panelId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -60,6 +67,13 @@ export function ChatWidget({
       ? 'api-url'
       : undefined;
   const visibleStatus = configurationIssue ? 'unavailable' : sessionState.status;
+  const sessionToken = sessionState.status === 'ready' ? sessionState.session.token : undefined;
+  const chatClient = useMemo(
+    () =>
+      chatClientOverride ??
+      (apiUrl && sessionToken ? createChatClient(apiUrl, () => sessionToken) : undefined),
+    [apiUrl, chatClientOverride, sessionToken],
+  );
   const availability = {
     initializing: 'Đang kết nối an toàn…',
     ready: 'Đã kết nối · Sẵn sàng',
@@ -72,6 +86,8 @@ export function ChatWidget({
     if (isOpen) closeButtonRef.current?.focus();
   }, [isOpen]);
 
+  useEffect(() => () => queryClient.clear(), [queryClient]);
+
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key !== 'Escape' || !isOpen) return;
@@ -83,82 +99,85 @@ export function ChatWidget({
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
-
   return (
-    <div
-      className="widget-shell"
-      data-open={isOpen ? 'true' : 'false'}
-      data-session-status={visibleStatus}
-    >
-      {isOpen ? (
-        <section className="chat-panel" id={panelId} role="dialog" aria-label="Hỗ trợ trực tuyến">
-          <header className="chat-header">
-            <div className="brand-mark" aria-hidden="true">
-              <ChatIcon />
-            </div>
-            <div className="header-copy">
-              <p className="eyebrow">Kênh hỗ trợ</p>
-              <h2>Xin chào, mình có thể giúp gì?</h2>
-              <span className="availability" aria-live="polite">
-                <i aria-hidden="true" /> {availability}
-              </span>
-            </div>
-            <button
-              ref={closeButtonRef}
-              className="icon-button"
-              type="button"
-              aria-label="Đóng cửa sổ chat"
-              onClick={() => setIsOpen(false)}
-            >
-              <CloseIcon />
-            </button>
-          </header>
-
-          <main className="conversation">
-            <SessionState
-              state={sessionState}
-              configurationIssue={configurationIssue}
-              onRetry={retry}
-            />
-          </main>
-
-          <form className="composer" onSubmit={handleSubmit}>
-            <label htmlFor={`${panelId}-message`}>Tin nhắn</label>
-            <div className="composer-row">
-              <textarea
-                id={`${panelId}-message`}
-                rows={1}
-                disabled
-                placeholder="Nhập tin nhắn..."
-                aria-describedby={`${panelId}-notice`}
-              />
-              <button type="submit" disabled aria-label="Gửi tin nhắn">
-                <ArrowIcon />
-              </button>
-            </div>
-            <p id={`${panelId}-notice`} className="preview-note">
-              Bản xem trước · {widgetId || 'chưa cấu hình'}
-            </p>
-          </form>
-        </section>
-      ) : null}
-
-      <button
-        ref={launcherRef}
-        className="launcher"
-        type="button"
-        aria-label={isOpen ? 'Đóng cửa sổ chat' : 'Mở cửa sổ chat'}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        onClick={() => setIsOpen((open) => !open)}
+    <QueryClientProvider client={queryClient}>
+      <div
+        className="widget-shell"
+        data-open={isOpen ? 'true' : 'false'}
+        data-session-status={visibleStatus}
       >
-        <span className="launcher-ring" aria-hidden="true" />
-        {isOpen ? <CloseIcon /> : <ChatIcon />}
-        <span className="launcher-label">Hỗ trợ</span>
-      </button>
-    </div>
+        {isOpen ? (
+          <section className="chat-panel" id={panelId} role="dialog" aria-label="Hỗ trợ trực tuyến">
+            <header className="chat-header">
+              <div className="brand-mark" aria-hidden="true">
+                <ChatIcon />
+              </div>
+              <div className="header-copy">
+                <p className="eyebrow">Kênh hỗ trợ</p>
+                <h2>Xin chào, mình có thể giúp gì?</h2>
+                <span className="availability" aria-live="polite">
+                  <i aria-hidden="true" /> {availability}
+                </span>
+              </div>
+              <button
+                ref={closeButtonRef}
+                className="icon-button"
+                type="button"
+                aria-label="Đóng cửa sổ chat"
+                onClick={() => setIsOpen(false)}
+              >
+                <CloseIcon />
+              </button>
+            </header>
+
+            {sessionState.status === 'ready' && chatClient && widgetId ? (
+              <ChatPanel client={chatClient} widgetId={widgetId} />
+            ) : (
+              <>
+                <main className="conversation">
+                  <SessionState
+                    state={sessionState}
+                    configurationIssue={configurationIssue}
+                    onRetry={retry}
+                  />
+                </main>
+                <form
+                  className="composer composer--disabled"
+                  onSubmit={(event) => event.preventDefault()}
+                >
+                  <label htmlFor={`${panelId}-message`}>Tin nhắn</label>
+                  <div className="composer-row">
+                    <textarea
+                      id={`${panelId}-message`}
+                      rows={1}
+                      disabled
+                      placeholder="Nhập tin nhắn…"
+                    />
+                    <button type="submit" disabled aria-label="Gửi tin nhắn">
+                      <ArrowIcon />
+                    </button>
+                  </div>
+                  <p className="composer-note">Kết nối an toàn để bắt đầu trò chuyện</p>
+                </form>
+              </>
+            )}
+          </section>
+        ) : null}
+
+        <button
+          ref={launcherRef}
+          className="launcher"
+          type="button"
+          aria-label={isOpen ? 'Đóng cửa sổ chat' : 'Mở cửa sổ chat'}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onClick={() => setIsOpen((open) => !open)}
+        >
+          <span className="launcher-ring" aria-hidden="true" />
+          {isOpen ? <CloseIcon /> : <ChatIcon />}
+          <span className="launcher-label">Hỗ trợ</span>
+        </button>
+      </div>
+    </QueryClientProvider>
   );
 }

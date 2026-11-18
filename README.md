@@ -205,8 +205,9 @@ Authorization: Bearer <widget-session-token>
 ```
 
 Response `200` trả `data.messages` chỉ thuộc session hiện tại. Mock Channel là adapter mặc định:
-message `Xin chào` tạo reply deterministic `Mock reply: Xin chào`, không gọi dịch vụ ngoài. UI,
-polling và active composer thuộc task frontend tiếp theo.
+message `Xin chào` tạo reply deterministic `Mock reply: Xin chào`, không gọi dịch vụ ngoài. Widget
+dùng TanStack Query để tải/poll history, Axios mutation để gửi, giữ draft khi lỗi và hiển thị
+sending/sent state trong Shadow Root.
 
 Widget tự bootstrap session khi mount. Loading, denied, unknown Widget và network failure được
 hiển thị thành các trạng thái riêng; network failure có thể retry. Token chỉ nằm trong memory của

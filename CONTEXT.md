@@ -46,8 +46,9 @@ deterministic.
   API, session isolation, idempotency và deterministic Mock Channel đã hoạt động; rate limiting và
   Zalo integration chưa được triển khai.
 - Widget bootstrap session qua Axios khi mount và hiển thị riêng trạng thái initializing, ready,
-  denied, not-found và unavailable; JWT chỉ giữ trong React memory. Composer vẫn bị disable có chủ
-  đích.
+  denied, not-found và unavailable; JWT chỉ giữ trong React memory. Khi session ready, Widget dùng
+  QueryClient riêng để list/poll message, gửi qua active composer với idempotency key và render
+  visitor/Mock reply dưới dạng plain text.
 - PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle migration cho Widget
   session và short-lived messages đã có; BullMQ consumer vẫn chưa được triển khai.
 

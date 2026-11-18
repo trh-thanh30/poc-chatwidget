@@ -20,6 +20,9 @@ pnpm build
 7. Thu viewport xuống dưới 520 px, kiểm tra launcher compact và panel không tràn màn hình.
 8. Thêm embed script lần thứ hai, kiểm tra chỉ có một `#poc-chatwidget-root`.
 9. Xóa `data-widget-id`, kiểm tra panel hiển thị lỗi cấu hình nhưng host page không lỗi.
+10. Trên allowed origin, gửi một message và xác nhận thấy `Đang gửi`, `Đã gửi` rồi Mock reply.
+11. Khi API gửi lỗi, xác nhận draft còn nguyên và có feedback để thử lại.
+12. Ở viewport 375 px, xác nhận panel không overflow, textarea 16 px và target chính tối thiểu 44 px.
 
 ## Isolation assertions
 

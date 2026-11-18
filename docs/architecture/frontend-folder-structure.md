@@ -39,6 +39,12 @@ triển khai ở đúng frontend issue, không thêm speculative provider/compon
 ```text
 apps/widget/
 ├── src/
+│   ├── features/chat/
+│   │   ├── api/
+│   │   ├── hooks/
+│   │   ├── tests/
+│   │   ├── types/
+│   │   └── chat-panel.tsx
 │   ├── features/session/
 │   │   ├── api/
 │   │   ├── components/
@@ -49,7 +55,8 @@ apps/widget/
 │   │   ├── tests/
 │   │   ├── http-client.error.ts
 │   │   ├── http-client.interceptors.ts
-│   │   └── http-client.ts
+│   │   ├── http-client.ts
+│   │   └── query-client.ts
 │   ├── entry.tsx
 │   ├── mount-widget.tsx
 │   ├── mount-widget.test.tsx
@@ -130,10 +137,10 @@ Trách nhiệm hiện tại:
 - Panel open/close behavior.
 - Keyboard Escape và focus restoration.
 - Compose Widget session hook và status presentation.
-- Preview composer bị disable đúng scope task.
+- Tạo QueryClient riêng cho Widget runtime và compose active chat panel khi session ready.
 
-`widget.tsx` chỉ compose local panel behavior và feature session presentation. Axios/session
-lifecycle nằm trong `features/session`; không đưa API, message list hoặc channel logic vào đây.
+`widget.tsx` chỉ compose local panel behavior, session presentation và feature chat. Axios/session
+lifecycle nằm trong `features/session`; message query/mutation/UI nằm trong `features/chat`.
 
 ### `src/styles.css`
 
@@ -163,58 +170,55 @@ Build contract hiện tại:
 
 Không đổi filename/hash strategy nếu chưa cập nhật integration guide và cache/deploy strategy.
 
-## Target Structure Khi Chat Feature Xuất Hiện
+## Chat Feature Structure Hiện Tại
 
-Không tạo trước các folder rỗng. Khi frontend message flow được triển khai, cấu trúc mục tiêu là:
+Message flow hiện được tổ chức theo feature:
 
 ```text
 apps/widget/src/
-├── bootstrap/
-│   ├── read-embed-config.ts
-│   └── mount-widget.tsx
-├── components/
-│   └── ui/                  # shadcn primitives thật sự được dùng
 ├── features/
-│   └── chat/
-│       ├── api/
-│       │   ├── chat.api.ts
-│       │   └── chat.keys.ts
-│       ├── components/
-│       ├── hooks/
-│       ├── types/
-│       └── chat-panel.tsx
+│   ├── chat/
+│   │   ├── api/
+│   │   │   ├── chat.api.ts
+│   │   │   └── chat.keys.ts
+│   │   ├── hooks/
+│   │   │   └── use-chat-messages.ts
+│   │   ├── tests/
+│   │   ├── types/
+│   │   └── chat-panel.tsx
+│   └── session/
 ├── lib/
 │   ├── http-client.ts
+│   ├── http-client.interceptors.ts
 │   └── query-client.ts
-├── styles/
-│   ├── tokens.css
-│   └── widget.css
 ├── entry.tsx
+├── mount-widget.tsx
+├── styles.css
 └── widget.tsx
 ```
 
-Chỉ tách `bootstrap/` hoặc `styles/` khi có ít nhất hai file cùng trách nhiệm. Một file duy nhất
-được giữ ở root để tránh folder nông không cần thiết.
+Chưa tạo `components/ui`, `bootstrap/` hoặc `styles/` vì chưa có ít nhất hai file cùng trách nhiệm
+và chat form hiện dùng semantic HTML, không cần shadcn/Radix primitive.
 
 ## State Ownership
 
-| State                 | Owner                                            |
-| --------------------- | ------------------------------------------------ |
-| Panel open/close      | React local state                                |
-| Draft message         | Chat feature local state                         |
-| Session bootstrap     | TanStack Query hoặc bootstrap hook khi được thêm |
-| Message list          | TanStack Query cache                             |
-| Send mutation         | TanStack Query mutation                          |
-| Poll/retry status     | TanStack Query policy                            |
-| Embed config          | Immutable bootstrap config                       |
-| Cross-tab persistence | Không thêm nếu acceptance criteria chưa yêu cầu  |
+| State                 | Owner                                           |
+| --------------------- | ----------------------------------------------- |
+| Panel open/close      | React local state                               |
+| Draft message         | Chat feature local state                        |
+| Session bootstrap     | `useWidgetSession` bootstrap hook               |
+| Message list          | TanStack Query cache                            |
+| Send mutation         | TanStack Query mutation                         |
+| Poll/retry status     | TanStack Query policy                           |
+| Embed config          | Immutable bootstrap config                      |
+| Cross-tab persistence | Không thêm nếu acceptance criteria chưa yêu cầu |
 
 Không thêm Zustand/Jotai/Redux cho state hiện tại. Global store chỉ hợp lý khi state thật sự dùng
 xuyên nhiều feature độc lập.
 
 ## Axios and TanStack Query Rules
 
-Khi các package được thêm:
+Luồng data hiện tại:
 
 ```text
 React component
@@ -233,6 +237,8 @@ React component
 - Axios interceptor không log request/response, JWT hoặc message content và không chứa UI behavior.
 - Query key định nghĩa tập trung trong feature.
 - Retry GET/poll có kiểm soát; không retry send-message mutation mù quáng.
+- Query/poll chỉ chạy khi panel mở và Widget session ready; AbortSignal hủy request khi unmount.
+- Draft lỗi được giữ cùng idempotency key để retry không tạo duplicate intent.
 - `429` phải đọc `Retry-After` và chuyển thành UI state rõ ràng.
 - Query cache không được chia sẻ qua global host page.
 - QueryClient được tạo bên trong Widget runtime, không lấy instance của host.
@@ -290,6 +296,7 @@ Demo là consumer độc lập.
 - Abort bootstrap khi unmount, singleton bootstrap và memory-only JWT behavior.
 - Axios token/error interceptor contract.
 - Message rendering và safe text handling khi feature được thêm.
+- Composer validation, double submit, retry giữ draft/idempotency key và bounded polling lifecycle.
 
 ### Integration/browser tests
 

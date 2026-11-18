@@ -64,6 +64,7 @@ button {
     0 3px 8px rgb(10 38 48 / 16%);
   cursor: pointer;
   isolation: isolate;
+  touch-action: manipulation;
   transition:
     transform 180ms ease,
     background 180ms ease,
@@ -162,7 +163,7 @@ button {
 .chat-header {
   position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr 36px;
+  grid-template-columns: 44px 1fr 44px;
   gap: 12px;
   align-items: start;
   padding: 20px 18px 18px;
@@ -250,8 +251,8 @@ button {
 
 .icon-button {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   color: #d8e7e9;
@@ -259,6 +260,7 @@ button {
   border: 1px solid rgb(255 255 255 / 9%);
   border-radius: 12px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .icon-button:hover {
@@ -282,6 +284,165 @@ button {
   background-size: 16px 16px;
 }
 
+.conversation--chat {
+  display: block;
+  padding: 0;
+  place-items: initial;
+}
+
+.message-scroll {
+  height: 100%;
+  min-height: 0;
+  padding: 20px 16px 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: rgb(18 60 74 / 24%) transparent;
+  scrollbar-width: thin;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-list:empty {
+  display: none;
+}
+
+.message-item {
+  display: flex;
+  width: 100%;
+}
+
+.message-item[data-direction='visitor'] {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: min(82%, 285px);
+  padding: 10px 12px 8px;
+  color: var(--cw-ink);
+  background: #fff;
+  border: 1px solid #dce7e4;
+  border-radius: 6px 16px 16px;
+  box-shadow: 0 4px 14px rgb(16 44 54 / 6%);
+}
+
+.message-item[data-direction='visitor'] .message-bubble {
+  color: #f7fffd;
+  background: var(--cw-navy);
+  border-color: var(--cw-navy);
+  border-radius: 16px 16px 5px;
+  box-shadow: 0 6px 16px rgb(16 44 54 / 14%);
+}
+
+.message-item[data-status='sending'] .message-bubble {
+  opacity: 0.72;
+}
+
+.message-bubble p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.message-bubble time,
+.message-delivery {
+  display: block;
+  margin-top: 5px;
+  color: #71868b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.message-item[data-direction='visitor'] .message-bubble time,
+.message-item[data-direction='visitor'] .message-delivery {
+  color: #a9d4cd;
+}
+
+.empty-conversation,
+.history-state {
+  display: grid;
+  min-height: 100%;
+  align-content: center;
+  justify-items: center;
+  padding: 28px 20px;
+  color: var(--cw-muted);
+  text-align: center;
+}
+
+.empty-conversation > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 13px;
+  place-items: center;
+  color: var(--cw-mint-dark);
+  background: #e3f4ee;
+  border-radius: 16px 16px 5px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.empty-conversation strong,
+.history-state strong {
+  color: var(--cw-ink);
+  font-size: 16px;
+}
+
+.empty-conversation p,
+.history-state span {
+  max-width: 250px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.history-state {
+  gap: 7px;
+}
+
+.history-state--error {
+  color: #85583f;
+}
+
+.history-state--error strong {
+  color: #713e27;
+}
+
+.history-state button {
+  min-height: 44px;
+  margin-top: 9px;
+  padding: 0 18px;
+  color: #fff;
+  background: var(--cw-navy);
+  border: 0;
+  border-radius: 13px 13px 4px;
+  cursor: pointer;
+  font-weight: 700;
+  touch-action: manipulation;
+}
+
+.history-spinner {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 5px;
+  border: 3px solid #d6e4e1;
+  border-top-color: var(--cw-mint-dark);
+  border-radius: 50%;
+  animation: history-spin 800ms linear infinite;
+}
+
 .composer {
   padding: 14px 15px 12px;
   background: #fff;
@@ -301,14 +462,14 @@ button {
 
 .composer-row {
   display: grid;
-  grid-template-columns: 1fr 40px;
+  grid-template-columns: 1fr 44px;
   gap: 8px;
   align-items: end;
 }
 
 .composer textarea {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   max-height: 100px;
   padding: 10px 12px;
   resize: none;
@@ -317,6 +478,10 @@ button {
   border: 1px solid #e1e9e7;
   border-radius: 13px;
   outline: none;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .composer textarea::placeholder {
@@ -328,16 +493,55 @@ button {
   opacity: 0.82;
 }
 
+.composer textarea:focus {
+  background: #fff;
+  border-color: var(--cw-mint-dark);
+  box-shadow: 0 0 0 3px rgb(47 199 161 / 15%);
+}
+
+.composer textarea[aria-invalid='true'] {
+  border-color: #ce7950;
+}
+
 .composer button {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   color: #5f787c;
   background: #e5eeec;
   border: 0;
   border-radius: 13px 13px 4px 13px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.composer button:not(:disabled) {
+  color: var(--cw-navy);
+  background: var(--cw-mint);
+  box-shadow: 0 5px 14px rgb(47 199 161 / 22%);
+}
+
+.composer button:not(:disabled):hover {
+  color: #fff;
+  background: var(--cw-mint-dark);
+}
+
+.composer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
+.composer button:focus-visible,
+.history-state button:focus-visible,
+.composer textarea:focus-visible {
+  outline: 3px solid rgb(47 199 161 / 42%);
+  outline-offset: 2px;
 }
 
 .composer button svg {
@@ -345,11 +549,26 @@ button {
   height: 19px;
 }
 
-.preview-note {
+.composer-note {
   margin: 7px 2px 0;
   color: #84969a;
   font-size: 10px;
   text-align: center;
+}
+
+.composer-feedback {
+  color: #9b4f2e;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.composer-feedback:not(:empty) {
+  margin: 7px 2px 0;
+}
+
+.composer--disabled .composer-note {
+  color: #84969a;
 }
 
 @keyframes panel-enter {
@@ -360,6 +579,12 @@ button {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes history-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -387,10 +612,21 @@ button {
   }
 
   .chat-panel {
-    width: calc(100vw - 24px);
     height: min(620px, calc(100dvh - 92px));
     min-height: min(470px, calc(100dvh - 92px));
     bottom: 66px;
+  }
+
+  .message-scroll {
+    padding-inline: 13px;
+  }
+
+  .message-bubble {
+    max-width: 86%;
+  }
+
+  .composer textarea {
+    font-size: 16px;
   }
 }
 
@@ -401,5 +637,9 @@ button {
 
   .launcher {
     transition: none;
+  }
+
+  .history-spinner {
+    animation: none;
   }
 }

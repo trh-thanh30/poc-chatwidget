@@ -3,12 +3,18 @@
 import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import type { ChatClient } from '../../chat/api/chat.api';
 import { destroyChatWidget, mountChatWidget } from '../../../mount-widget';
 import { WidgetSessionApiError, type WidgetSessionClient } from '../api/widget-session.api';
 import type { WidgetSession } from '../types/widget-session.types';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
+
+const chatClient: ChatClient = {
+  listMessages: vi.fn().mockResolvedValue([]),
+  sendMessage: vi.fn(),
+};
 
 afterEach(() => {
   act(() => destroyChatWidget());
@@ -31,7 +37,7 @@ describe('Widget session bootstrap', () => {
       host = mountChatWidget(
         { apiUrl: 'http://localhost:3000/api/v1', widgetId: 'demo-widget' },
         document,
-        { sessionClient: client },
+        { chatClient, sessionClient: client },
       );
     });
 
@@ -49,7 +55,7 @@ describe('Widget session bootstrap', () => {
       await Promise.resolve();
     });
 
-    expect(host.shadowRoot?.textContent).toContain('Widget đã sẵn sàng');
+    expect(host.shadowRoot?.textContent).toContain('Đã kết nối · Sẵn sàng');
     expect(host.shadowRoot?.textContent).not.toContain('memory-only-secret-token');
     expect(window.location.href).not.toContain('memory-only-secret-token');
     expect(window.localStorage.getItem('widget-session')).toBeNull();
@@ -70,7 +76,7 @@ describe('Widget session bootstrap', () => {
       host = mountChatWidget(
         { apiUrl: 'http://localhost:3000/api/v1', widgetId: 'demo-widget' },
         document,
-        { sessionClient: client },
+        { chatClient, sessionClient: client },
       );
       await Promise.resolve();
     });
@@ -96,7 +102,7 @@ describe('Widget session bootstrap', () => {
       host = mountChatWidget(
         { apiUrl: 'http://localhost:3000/api/v1', widgetId: 'demo-widget' },
         document,
-        { sessionClient: client },
+        { chatClient, sessionClient: client },
       );
       await Promise.resolve();
     });
@@ -114,7 +120,7 @@ describe('Widget session bootstrap', () => {
       await Promise.resolve();
     });
 
-    expect(host.shadowRoot?.textContent).toContain('Widget đã sẵn sàng');
+    expect(host.shadowRoot?.textContent).toContain('Đã kết nối · Sẵn sàng');
     expect(client.createSession).toHaveBeenCalledTimes(2);
   });
 
