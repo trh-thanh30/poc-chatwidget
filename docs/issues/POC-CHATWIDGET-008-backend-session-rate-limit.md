@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-008] - Backend Rate Limiting theo Widget Session
 
-Status: ready
+Status: completed
 Type: feature
 Area: backend
 Blocked by: POC-CHATWIDGET-006
@@ -26,10 +26,10 @@ Giới hạn một verified Widget session tối đa 5 send requests trong 10 gi
 
 ## Acceptance Criteria
 
-- [ ] Năm request đầu pass; request thứ sáu trong 10 giây trả `429`.
-- [ ] Hết window gửi lại được; session/Widget khác không dùng chung counter.
-- [ ] Sửa body session ID không bypass verified tracker key.
-- [ ] Rejected message không persist/forward và response có `Retry-After`.
+- [x] Năm request đầu pass; request thứ sáu trong 10 giây trả `429`.
+- [x] Hết window gửi lại được; session/Widget khác không dùng chung counter.
+- [x] Sửa body session ID không bypass verified tracker key.
+- [x] Rejected message không persist/forward và response có `Retry-After`.
 
 ## Out of Scope
 
@@ -42,3 +42,10 @@ pnpm --filter @chat-widget/api check-types
 pnpm test
 pnpm --filter @chat-widget/api build
 ```
+
+## Notes
+
+Ngày 2026-11-18, `POST /api/v1/messages` dùng `@nestjs/throttler` với tracker lấy từ
+`widgetId + sessionId` của verified session. Policy cho phép 5 request trong rolling window 10 giây;
+request bị chặn trả `MESSAGE_RATE_LIMITED`, `Retry-After` và không đi vào send use case. Full quality
+gate pass với 60 tests; 1 database integration test vẫn opt-in và được skip mặc định.

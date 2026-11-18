@@ -19,11 +19,13 @@ Widget IIFE (apps/widget)
         +-- React launcher + preview panel
 
 NestJS API (apps/api)
-        +-- GET /api/v1/health
+        +-- Widget session + exact-origin whitelist
+        +-- GET/POST /api/v1/messages + Mock Channel
+        +-- 5 sends / 10 seconds per verified Widget session
 ```
 
-Widget chưa kết nối với API; `data-api-url` hiện mới là bootstrap configuration được đọc từ embed
-script.
+Widget bootstrap session và gọi Message API qua `data-api-url`; demo host chỉ cung cấp embed script
+và allowed origin để kiểm thử.
 
 ## Dependency rules
 
@@ -37,10 +39,7 @@ script.
 
 Các boundary sau đã nằm trong PRD nhưng chưa được triển khai:
 
-- Widget/session/domain modules trong API.
-- PostgreSQL + Drizzle persistence.
-- `ChatChannel` interface với Mock và Zalo Personal implementations.
-- Session-scoped rate limiting.
+- Zalo Personal implementation cho `ChatChannel` (Mock Channel đang là adapter mặc định).
 
 Khi các phần này được triển khai, cập nhật tài liệu từ “planned” sang kiến trúc hiện hành trong
 cùng pull request/change set.

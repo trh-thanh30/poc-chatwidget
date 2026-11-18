@@ -3,6 +3,7 @@ import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/com
 // Kept as a value import so Nest can emit runtime DTO metadata for ValidationPipe.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { SendMessageDto } from './dto/send-message.dto';
+import { MessageRateLimitGuard } from './policies/message-rate-limit.guard';
 import { ListMessagesUseCase } from './use-cases/list-messages.use-case';
 import { SendMessageUseCase } from './use-cases/send-message.use-case';
 import {
@@ -19,6 +20,7 @@ export class MessagesController {
   ) {}
 
   @Post()
+  @UseGuards(MessageRateLimitGuard)
   send(@Body() input: SendMessageDto, @Req() request: WidgetSessionRequest) {
     return this.sendMessage.execute({
       session: request.widgetSession!,

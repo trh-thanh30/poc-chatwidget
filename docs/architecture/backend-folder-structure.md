@@ -300,8 +300,9 @@ Khi reject:
 - Ghi structured event không chứa nội dung chat nhạy cảm.
 - Test boundary ở message thứ 5, thứ 6, hết window và hai session độc lập.
 
-In-memory limiter đủ cho single-instance POC. Nếu chạy nhiều replica, chuyển store sang Redis hoặc
-storage chia sẻ; ghi rõ limitation trước khi deploy.
+Default in-memory store của `@nestjs/throttler` chỉ đủ cho single-instance POC: mỗi API process giữ
+một counter riêng và counter mất khi process restart. Nếu chạy nhiều replica, chuyển store sang
+Redis hoặc storage chia sẻ trước khi deploy.
 
 ## Chat Channel Boundary
 

@@ -1,6 +1,7 @@
 import { type INestApplication } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
+import { ThrottlerModule } from '@nestjs/throttler';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,6 +18,11 @@ import { WidgetSessionGuard } from '../../widget-sessions/widget-session.guard';
 import { WidgetSessionsController } from '../../widget-sessions/widget-sessions.controller';
 import { MESSAGE_REPOSITORY } from '../message.constants';
 import { MessagesController } from '../messages.controller';
+import {
+  MESSAGE_RATE_LIMIT,
+  MESSAGE_RATE_LIMIT_WINDOW_MS,
+  MessageRateLimitGuard,
+} from '../policies/message-rate-limit.guard';
 import { ListMessagesUseCase } from '../use-cases/list-messages.use-case';
 import { SendMessageUseCase } from '../use-cases/send-message.use-case';
 import { InMemoryMessageRepository } from './message.repository.fake';
@@ -37,6 +43,13 @@ describe('Messages HTTP contract', () => {
           secret: JWT_SECRET,
           signOptions: { audience: 'poc-chatwidget', issuer: 'poc-chatwidget-api' },
         }),
+        ThrottlerModule.forRoot([
+          {
+            limit: MESSAGE_RATE_LIMIT,
+            ttl: MESSAGE_RATE_LIMIT_WINDOW_MS,
+            blockDuration: 0,
+          },
+        ]),
       ],
       controllers: [WidgetSessionsController, MessagesController],
       providers: [
@@ -45,6 +58,7 @@ describe('Messages HTTP contract', () => {
         WidgetOriginService,
         WidgetSessionTokenService,
         WidgetSessionGuard,
+        MessageRateLimitGuard,
         SendMessageUseCase,
         ListMessagesUseCase,
         { provide: WIDGET_SESSION_REPOSITORY, useValue: sessionRepository },
@@ -64,17 +78,36 @@ describe('Messages HTTP contract', () => {
     return { channel, sessionRepository };
   }
 
-  async function createSessionToken(): Promise<string> {
+  async function createSessionToken(widgetId = 'demo-widget'): Promise<string> {
     const response = await request(app.getHttpServer())
       .post('/api/v1/widget-sessions')
       .set('Origin', ORIGIN)
-      .send({ widgetId: 'demo-widget' })
+      .send({ widgetId })
       .expect(201);
     return response.body.data.token as string;
   }
 
+  async function sendFiveMessages(
+    token: string,
+    contentPrefix: string,
+    idPrefix: string,
+  ): Promise<void> {
+    for (let index = 0; index < 5; index += 1) {
+      await request(app.getHttpServer())
+        .post('/api/v1/messages')
+        .set('Origin', ORIGIN)
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          content: `${contentPrefix} ${index + 1}`,
+          idempotencyKey: `${idPrefix}-0000-4000-8000-00000000000${index}`,
+        })
+        .expect(201);
+    }
+  }
+
   afterEach(async () => {
     await app?.close();
+    vi.useRealTimers();
   });
 
   it('lets a verified session send a message and list its deterministic Mock reply', async () => {
@@ -269,5 +302,113 @@ describe('Messages HTTP contract', () => {
 
     expect(send).not.toHaveBeenCalled();
     expect(receive).not.toHaveBeenCalled();
+  });
+
+  it('accepts five sends per verified session then rejects the sixth without creating a message', async () => {
+    await createApp();
+    const token = await createSessionToken();
+
+    await sendFiveMessages(token, 'Message', '00000000');
+
+    const rejected = await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Message 6',
+        idempotencyKey: '00000000-0000-4000-8000-000000000005',
+      })
+      .expect(429);
+
+    expect(rejected.headers['retry-after']).toBe('10');
+    expect(rejected.body).toEqual({
+      error: {
+        code: 'MESSAGE_RATE_LIMITED',
+        message: 'Too many messages. Please retry later.',
+        details: { retryAfterSeconds: 10 },
+      },
+    });
+
+    const listed = await request(app.getHttpServer())
+      .get('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(listed.body.data.messages).toHaveLength(10);
+  });
+
+  it('keeps rate-limit counters independent between verified Widget sessions', async () => {
+    const { sessionRepository } = await createApp();
+    sessionRepository.widgets.set('partner-widget', {
+      id: 'partner-widget',
+      enabled: true,
+      allowedOrigins: [ORIGIN],
+    });
+    const sessionA = await createSessionToken();
+    const sessionB = await createSessionToken('partner-widget');
+
+    await sendFiveMessages(sessionA, 'Session A', '10000000');
+
+    await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${sessionB}`)
+      .send({
+        content: 'Session B first message',
+        idempotencyKey: '20000000-0000-4000-8000-000000000000',
+      })
+      .expect(201);
+  });
+
+  it('does not let a client-provided session ID bypass the verified session counter', async () => {
+    await createApp();
+    const token = await createSessionToken();
+
+    await sendFiveMessages(token, 'Verified session', '30000000');
+
+    await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Attempted bypass',
+        idempotencyKey: '30000000-0000-4000-8000-000000000005',
+        sessionId: 'client-controlled-session',
+      })
+      .expect(429);
+  });
+
+  it('accepts another send after the ten-second window expires', async () => {
+    const startedAt = Date.now();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(startedAt);
+
+    await createApp();
+    const token = await createSessionToken();
+
+    await sendFiveMessages(token, 'Within window', '40000000');
+
+    await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Still limited',
+        idempotencyKey: '40000000-0000-4000-8000-000000000005',
+      })
+      .expect(429);
+
+    vi.setSystemTime(startedAt + MESSAGE_RATE_LIMIT_WINDOW_MS + 1);
+
+    await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Allowed after window',
+        idempotencyKey: '40000000-0000-4000-8000-000000000006',
+      })
+      .expect(201);
   });
 });

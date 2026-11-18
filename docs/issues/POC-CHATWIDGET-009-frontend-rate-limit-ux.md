@@ -1,6 +1,6 @@
 # [POC-CHATWIDGET-009] - Frontend Anti-spam và Rate-limit UX
 
-Status: blocked
+Status: ready
 Type: feature
 Area: frontend
 Blocked by: POC-CHATWIDGET-007, POC-CHATWIDGET-008
