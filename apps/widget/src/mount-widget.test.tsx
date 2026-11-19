@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { act } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { destroyChatWidget, mountChatWidget, WIDGET_HOST_ID } from './mount-widget';
 
@@ -34,6 +34,7 @@ describe('mountChatWidget', () => {
   });
 
   it('opens and closes the accessible dialog', async () => {
+    vi.useFakeTimers();
     let host!: HTMLElement;
     await act(async () => {
       host = mountChatWidget({ widgetId: 'demo-widget' });
@@ -54,7 +55,13 @@ describe('mountChatWidget', () => {
     expect(host.shadowRoot?.activeElement).toBe(closeButton);
     await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })));
 
-    expect(host.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')?.getAttribute('data-state')).toBe(
+      'closing',
+    );
     expect(host.shadowRoot?.activeElement).toBe(launcher);
+
+    await act(async () => vi.advanceTimersByTime(180));
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    vi.useRealTimers();
   });
 });

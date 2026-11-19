@@ -488,9 +488,9 @@ describe('Widget chat flow', () => {
     );
     await flushUi();
 
-    const bubble = host.shadowRoot?.querySelector('.message-bubble p');
+    const bubble = host.shadowRoot?.querySelector('[data-direction="operator"] p');
     expect(bubble?.textContent).toBe(content);
-    expect(host.shadowRoot?.querySelector('.message-bubble script')).toBeNull();
+    expect(host.shadowRoot?.querySelector('[data-direction="operator"] script')).toBeNull();
     expect(
       (globalThis as typeof globalThis & { compromised?: boolean }).compromised,
     ).toBeUndefined();

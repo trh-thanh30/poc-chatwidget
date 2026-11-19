@@ -9,13 +9,22 @@ import { useRateLimitCooldown } from './use-rate-limit-cooldown';
 
 const POLL_INTERVAL_MS = 2_000;
 
-export function useChatMessages({ client, widgetId }: { client: ChatClient; widgetId: string }) {
+export function useChatMessages({
+  client,
+  enabled = true,
+  widgetId,
+}: {
+  client: ChatClient;
+  enabled?: boolean;
+  widgetId: string;
+}) {
   const queryClient = useQueryClient();
   const mutationController = useRef<AbortController | null>(null);
   const sendLocked = useRef(false);
   const rateLimit = useRateLimitCooldown(client);
   const queryKey = chatKeys.messages(widgetId);
   const messages = useQuery({
+    enabled,
     queryKey,
     queryFn: ({ signal }) => client.listMessages(signal),
     refetchInterval: POLL_INTERVAL_MS,

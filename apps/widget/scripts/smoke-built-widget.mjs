@@ -31,7 +31,7 @@ dom.window.document.body.append(script);
 await delay(50);
 
 const host = dom.window.document.getElementById('poc-chatwidget-root');
-const launcher = host?.shadowRoot?.querySelector('.launcher');
+const launcher = host?.shadowRoot?.querySelector('button[aria-label="Mở cửa sổ chat"]');
 
 try {
   assert.equal(runtimeErrors.length, 0, runtimeErrors[0]?.message ?? 'Widget runtime failed.');

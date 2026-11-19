@@ -154,14 +154,16 @@ lifecycle nằm trong `features/session`; message query/mutation/UI nằm trong 
 
 ### `src/styles.css`
 
-CSS chỉ dành cho Shadow Root.
+File chỉ là Tailwind entry (`@import 'tailwindcss'`). Presentation của Widget nằm trong
+utility classes tại JSX và output vẫn được inject vào Shadow Root.
 
 Rules:
 
-- Token riêng dùng prefix `--cw-`.
-- Reset chỉ scope dưới `:host`/Shadow Root.
+- Không thêm selector/component CSS thủ công vào `styles.css`; dùng Tailwind utility trong
+  component sở hữu presentation.
+- Dùng arbitrary value/variant có chọn lọc cho Shadow DOM geometry, status và responsive state.
 - Không dùng selector áp vào `html`, `body` hoặc host document.
-- Animation phải tôn trọng `prefers-reduced-motion`.
+- Transition phải dùng `motion-reduce:*` và tôn trọng `prefers-reduced-motion`.
 - Interactive target chính nên đạt tối thiểu khoảng 44×44 px.
 - Responsive breakpoint phải kiểm tra viewport hẹp và chiều cao thấp.
 - Tránh phụ thuộc `rem` cho geometry quan trọng nếu host page có thể thay root font size.

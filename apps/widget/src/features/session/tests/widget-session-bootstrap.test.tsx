@@ -110,9 +110,9 @@ describe('Widget session bootstrap', () => {
       'button[aria-label="Mở cửa sổ chat"]',
     );
     await act(async () => launcher?.click());
-    const retry = host.shadowRoot?.querySelector<HTMLButtonElement>(
-      'button[type="button"]:not(.icon-button):not(.launcher)',
-    );
+    const retry = Array.from(
+      host.shadowRoot?.querySelectorAll<HTMLButtonElement>('button[type="button"]') ?? [],
+    ).find((button) => button.textContent?.trim() === 'Thử lại');
 
     expect(retry?.textContent).toContain('Thử lại');
     await act(async () => {
