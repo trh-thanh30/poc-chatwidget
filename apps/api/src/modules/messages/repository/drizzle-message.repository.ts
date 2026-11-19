@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, eq, isNotNull } from 'drizzle-orm';
 
 import { DatabaseService } from '../../../database/database.service';
 import { messages } from '../../../database/schema';
@@ -55,6 +55,29 @@ export class DrizzleMessageRepository implements MessageRepository {
     if (!existing) throw new Error('Channel message insert did not return an existing row.');
 
     return existing;
+  }
+
+  async setVisitorChannelMessageId(messageId: string, channelMessageId: string): Promise<void> {
+    await this.database.db
+      .update(messages)
+      .set({ channelMessageId })
+      .where(and(eq(messages.id, messageId), eq(messages.direction, 'visitor')));
+  }
+
+  async listVisitorChannelMessageIds(sessionId: string): Promise<string[]> {
+    const rows = await this.database.db
+      .select({ channelMessageId: messages.channelMessageId })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.sessionId, sessionId),
+          eq(messages.direction, 'visitor'),
+          isNotNull(messages.channelMessageId),
+        ),
+      );
+    return rows.flatMap(({ channelMessageId }) =>
+      channelMessageId === null ? [] : [channelMessageId],
+    );
   }
 
   async listMessages(sessionId: string): Promise<ChatMessage[]> {

@@ -144,6 +144,9 @@ pnpm db:seed
 See [Local Infrastructure](docs/integrations/local-infrastructure.md) for environment overrides,
 Drizzle commands, persistence behavior and the explicit destructive-reset procedure.
 
+Mock Channel là mặc định. Cấu hình opt-in, rủi ro tài khoản và live validation cho adapter thật nằm
+trong [Zalo Personal Channel](docs/integrations/zalo-personal-channel.md).
+
 Chạy toàn bộ workspace:
 
 ```bash

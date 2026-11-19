@@ -17,9 +17,11 @@ export class ListMessagesUseCase {
   ) {}
 
   async execute(session: WidgetSessionContext) {
+    const outboundExternalMessageIds = await this.messages.listVisitorChannelMessageIds(session.id);
     const incoming = await this.channel.receive({
       sessionId: session.id,
       widgetId: session.widgetId,
+      outboundExternalMessageIds,
     });
 
     for (const message of incoming) {

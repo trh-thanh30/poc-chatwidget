@@ -37,14 +37,18 @@ export class SendMessageUseCase {
       createdAt: new Date(),
     });
 
-    if (result.created) {
-      await this.channel.send({
+    if (!result.message.channelMessageId) {
+      const sent = await this.channel.send({
         sessionId: input.session.id,
         widgetId: input.session.widgetId,
         messageId: result.message.id,
         content: result.message.content,
         createdAt: result.message.createdAt,
       });
+      await this.messages.setVisitorChannelMessageId(
+        result.message.id,
+        sent.externalMessageId,
+      );
     }
 
     return { data: { message: toMessageResponse(result.message) } };

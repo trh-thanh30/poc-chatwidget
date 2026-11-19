@@ -21,7 +21,8 @@ Widget IIFE (apps/widget)
 
 NestJS API (apps/api)
         +-- Widget session + exact-origin whitelist
-        +-- GET/POST /api/v1/messages + Mock Channel
+        +-- GET/POST /api/v1/messages
+        +-- ChatChannel: Mock mặc định / Zalo Personal opt-in
         +-- 5 sends / 10 seconds per verified Widget session
 ```
 
@@ -36,11 +37,8 @@ và allowed origin để kiểm thử.
 - API không phụ thuộc browser code.
 - Widget không đọc hoặc ghi global state của host page ngoài host element của chính nó.
 
-## Planned boundaries
+## Live-validation boundary
 
-Các boundary sau đã nằm trong PRD nhưng chưa được triển khai:
-
-- Zalo Personal implementation cho `ChatChannel` (Mock Channel đang là adapter mặc định).
-
-Khi các phần này được triển khai, cập nhật tài liệu từ “planned” sang kiến trúc hiện hành trong
-cùng pull request/change set.
+Zalo Personal adapter đã có config, lifecycle, quoted-reply mapping và opt-in test harness. Việc xác
+nhận account/thread thật vẫn cần dedicated POC account và thao tác reply của con người; automated
+quality gate tiếp tục dùng Mock Channel.

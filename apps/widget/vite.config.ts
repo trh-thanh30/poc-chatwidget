@@ -9,6 +9,9 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
+  esbuild: {
+    jsxDev: false,
+  },
   build: {
     emptyOutDir: true,
     lib: {

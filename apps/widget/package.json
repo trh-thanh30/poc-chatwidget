@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run build && concurrently --kill-others \"vite build --watch\" \"vite preview --host 0.0.0.0 --port 4173 --strictPort\"",
-    "build": "vite build",
+    "build": "vite build && node scripts/smoke-built-widget.mjs",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "concurrently": "^9.2.1",
+    "jsdom": "^27.2.0",
     "tailwindcss": "^4.3.5",
     "typescript": "catalog:",
     "vite": "catalog:"

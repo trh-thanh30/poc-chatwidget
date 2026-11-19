@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { DatabaseModule } from '../../database/database.module';
-import { CHAT_CHANNEL } from '../channels/chat-channel.constants';
-import { MockChatChannel } from '../channels/mock-chat.channel';
+import { ChannelsModule } from '../channels/channels.module';
 import { WidgetSessionsModule } from '../widget-sessions/widget-sessions.module';
 import { MESSAGE_REPOSITORY } from './message.constants';
 import { MessagesController } from './messages.controller';
@@ -19,6 +18,7 @@ import { SendMessageUseCase } from './use-cases/send-message.use-case';
 @Module({
   imports: [
     DatabaseModule,
+    ChannelsModule,
     WidgetSessionsModule,
     ThrottlerModule.forRoot([
       {
@@ -34,9 +34,7 @@ import { SendMessageUseCase } from './use-cases/send-message.use-case';
     ListMessagesUseCase,
     MessageRateLimitGuard,
     DrizzleMessageRepository,
-    MockChatChannel,
     { provide: MESSAGE_REPOSITORY, useExisting: DrizzleMessageRepository },
-    { provide: CHAT_CHANNEL, useExisting: MockChatChannel },
   ],
 })
 export class MessagesModule {}

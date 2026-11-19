@@ -13,6 +13,7 @@ export type ChannelMessageResult = {
 export type ReceiveChannelMessages = {
   sessionId: string;
   widgetId: string;
+  outboundExternalMessageIds: string[];
 };
 
 export type ChannelMessage = {

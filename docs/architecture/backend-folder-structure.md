@@ -26,15 +26,7 @@ không để controller, database hay thư viện Zalo phụ thuộc trực ti�
 | DTO validation | class-validator/transformer           | Global request validation                    |
 | Throttling     | `@nestjs/throttler`                   | Extensible HTTP rate-limit policy            |
 | Local services | PostgreSQL 16, Redis 7 (Compose)      | Persistence và queue-ready infrastructure    |
-
-### Đã chọn nhưng chưa cài đặt
-
-| Package  | Task dự kiến          | Rule khi thêm                                        |
-| -------- | --------------------- | ---------------------------------------------------- |
-| `zca-js` | Zalo Personal channel | Pin exact version và bọc sau `ChatChannel` interface |
-
-Không viết tài liệu hoặc code như thể các package trong bảng thứ hai đã tồn tại. Khi cài đặt,
-cập nhật inventory và lockfile trong cùng change set.
+| Zalo adapter   | `zca-js` 2.3.0 (exact)                | Opt-in unofficial Zalo Personal transport    |
 
 Project đã chọn **Drizzle ORM**. Không thêm Prisma, `PrismaService` hoặc Prisma migration song
 song vì sẽ tạo hai persistence convention cho cùng một POC.
@@ -64,8 +56,12 @@ apps/api/
 │   │   └── database.service.ts
 │   ├── modules/
 │   │   ├── channels/
+│   │   │   ├── tests/
 │   │   │   ├── chat-channel.ts
-│   │   │   └── mock-chat.channel.ts
+│   │   │   ├── channels.module.ts
+│   │   │   ├── mock-chat.channel.ts
+│   │   │   ├── zalo-personal.channel.ts
+│   │   │   └── zca-personal.client.ts
 │   │   ├── health/
 │   │   │   ├── tests/
 │   │   │   ├── health.controller.ts
@@ -103,8 +99,8 @@ apps/api/
 API cung cấp health, Widget session và protected list/send Message API. Drizzle sở hữu
 schema/migration cho Widget, allowed origin, short-lived session và message. Create/verify/send/list
 use cases sở hữu business flow; `WidgetSessionGuard` chỉ lấy transport context rồi gọi verify use
-case. `MockChatChannel` tạo reply deterministic sau `ChatChannel`; rate limiter và Zalo adapter
-chưa được triển khai.
+case. `ChannelsModule` chọn Mock mặc định hoặc Zalo Personal opt-in sau cùng `ChatChannel` contract;
+rate limiter enforce 5 send requests/10 giây theo verified Widget session.
 
 ## Current File Roles
 
@@ -316,7 +312,7 @@ export interface ChatChannel {
 ```
 
 - `MockChatChannel` dùng cho demo/test và không cần credential.
-- `ZaloPersonalChannel` là adapter duy nhất import Zalo library.
+- `ZcaPersonalClient` là SDK boundary duy nhất import Zalo library.
 - Chọn adapter qua validated config/provider token.
 - Không để type của SDK rò sang controller hoặc public API DTO.
 - Map error của SDK thành application error ổn định.
@@ -325,6 +321,10 @@ export interface ChatChannel {
 
 Zalo Personal là integration có rủi ro thay đổi và account policy. Pin exact package version,
 không commit credential/session, và giữ mock adapter làm fallback cho acceptance test.
+
+Implementation tách `ZcaPersonalClient` làm SDK boundary duy nhất; channel không để type SDK rò
+sang message use case. Outbound external ID được persist trên visitor message; listener chỉ nhận
+plain-text reply quote đúng message trong configured operator thread và dedupe event ID.
 
 ## Configuration and Secrets
 
@@ -338,6 +338,10 @@ WIDGET_SESSION_JWT_SECRET
 WIDGET_SESSION_JWT_TTL_SECONDS
 ZALO_* (chỉ khi adapter thật được bật)
 ```
+
+Các key opt-in cụ thể: `ZALO_PERSONAL_COOKIE_JSON`, `ZALO_PERSONAL_IMEI`,
+`ZALO_PERSONAL_USER_AGENT`, `ZALO_PERSONAL_OPERATOR_THREAD_ID` và
+`ZALO_PERSONAL_OPERATOR_THREAD_TYPE=user|group`.
 
 - Validate tất cả biến bắt buộc lúc bootstrap và fail fast với message an toàn.
 - `.env.example` chỉ chứa placeholder.
@@ -407,6 +411,9 @@ chấp nhận thay đổi test runner.
 
 Test không phụ thuộc account Zalo cá nhân trong default CI. Live integration test phải opt-in và
 được bảo vệ bằng environment flag/secret store.
+
+Suite `zalo-personal.live.spec.ts` chỉ chạy khi `RUN_ZALO_LIVE_TESTS=1` và yêu cầu operator quote
+reply trong thời gian test; default quality gate không kết nối Zalo.
 
 ## Dependency Placement
 

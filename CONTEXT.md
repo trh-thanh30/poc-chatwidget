@@ -44,7 +44,8 @@ deterministic.
   thực JWT session gắn với exact origin. Create/verify flow nằm trong use case; common HTTP module
   sở hữu stable errors, request ID và privacy-safe logging. Message schema, protected list/send
   API, session isolation, idempotency, deterministic Mock Channel và rate limit 5 request/10 giây
-  theo verified Widget session đã hoạt động; Zalo integration chưa được triển khai.
+  theo verified Widget session đã hoạt động. Zalo Personal adapter đã có opt-in config, singleton
+  listener lifecycle và quoted-reply mapping; live account/thread validation vẫn cần con người.
 - Widget bootstrap session qua Axios khi mount và hiển thị riêng trạng thái initializing, ready,
   denied, not-found và unavailable; JWT chỉ giữ trong React memory. Khi session ready, Widget dùng
   QueryClient riêng để list/poll message, gửi qua active composer với idempotency key và render

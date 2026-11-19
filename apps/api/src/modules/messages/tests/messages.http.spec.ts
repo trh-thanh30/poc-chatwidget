@@ -6,6 +6,8 @@ import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createValidationPipe } from '../../../common/http/validation.pipe';
+import { ChannelUnavailableError } from '../../channels/channel-unavailable.error';
+import type { ChatChannel } from '../../channels/chat-channel';
 import { MockChatChannel } from '../../channels/mock-chat.channel';
 import { CHAT_CHANNEL } from '../../channels/chat-channel.constants';
 import { WidgetOriginService } from '../../widget-sessions/services/widget-origin.service';
@@ -33,10 +35,9 @@ const ORIGIN = 'http://localhost:5173';
 describe('Messages HTTP contract', () => {
   let app: INestApplication;
 
-  async function createApp() {
+  async function createApp(channel: ChatChannel = new MockChatChannel()) {
     const sessionRepository = new InMemoryWidgetSessionRepository();
     const messageRepository = new InMemoryMessageRepository();
-    const channel = new MockChatChannel();
     const moduleRef = await Test.createTestingModule({
       imports: [
         JwtModule.register({
@@ -302,6 +303,32 @@ describe('Messages HTTP contract', () => {
 
     expect(send).not.toHaveBeenCalled();
     expect(receive).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable 503 response when the selected channel is unavailable', async () => {
+    const channel: ChatChannel = {
+      send: vi.fn().mockRejectedValue(new ChannelUnavailableError()),
+      receive: vi.fn().mockResolvedValue([]),
+    };
+    await createApp(channel);
+    const token = await createSessionToken();
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/messages')
+      .set('Origin', ORIGIN)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        content: 'Channel unavailable',
+        idempotencyKey: 'c99b40b5-781b-41a1-9312-6856be875f60',
+      })
+      .expect(503);
+
+    expect(response.body).toEqual({
+      error: {
+        code: 'CHANNEL_UNAVAILABLE',
+        message: 'The chat channel is temporarily unavailable.',
+      },
+    });
   });
 
   it('accepts five sends per verified session then rejects the sixth without creating a message', async () => {

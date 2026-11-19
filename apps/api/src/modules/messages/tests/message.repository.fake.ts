@@ -40,6 +40,23 @@ export class InMemoryMessageRepository implements MessageRepository {
     return message;
   }
 
+  async setVisitorChannelMessageId(messageId: string, channelMessageId: string): Promise<void> {
+    const message = this.messages.find(
+      (candidate) => candidate.id === messageId && candidate.direction === 'visitor',
+    );
+    if (message) message.channelMessageId = channelMessageId;
+  }
+
+  async listVisitorChannelMessageIds(sessionId: string): Promise<string[]> {
+    return this.messages.flatMap((message) =>
+      message.sessionId === sessionId &&
+      message.direction === 'visitor' &&
+      message.channelMessageId
+        ? [message.channelMessageId]
+        : [],
+    );
+  }
+
   async listMessages(sessionId: string): Promise<ChatMessage[]> {
     return this.messages
       .filter((message) => message.sessionId === sessionId)

@@ -63,6 +63,7 @@ describe.runIf(databaseTestEnabled)('DrizzleMessageRepository integration', () =
       id: randomUUID(),
       content: 'Ignored duplicate payload',
     });
+    await repository.setVisitorChannelMessageId(visitor.id, `zalo:${visitor.id}`);
     await repository.createOperatorMessage({
       id: randomUUID(),
       sessionId: sessionA,
@@ -73,6 +74,9 @@ describe.runIf(databaseTestEnabled)('DrizzleMessageRepository integration', () =
 
     expect(created.created).toBe(true);
     expect(duplicate).toEqual({ message: created.message, created: false });
+    expect(await repository.listVisitorChannelMessageIds(sessionA)).toEqual([
+      `zalo:${visitor.id}`,
+    ]);
     expect(await repository.listMessages(sessionA)).toMatchObject([
       { content: 'Persisted visitor message', direction: 'visitor' },
       { content: 'Persisted operator reply', direction: 'operator' },

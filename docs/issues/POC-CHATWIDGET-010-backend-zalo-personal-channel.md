@@ -27,9 +27,9 @@ Thêm Zalo Personal adapter sau `ChatChannel` mà không đổi public Message A
 ## Acceptance Criteria
 
 - [ ] Dedicated account kết nối; Widget message tới operator thread và quoted reply về đúng session.
-- [ ] Duplicate external event không tạo duplicate message.
-- [ ] Connection loss không crash API/host; credential không xuất hiện repo/frontend/log/response.
-- [ ] `CHAT_CHANNEL=mock|zalo-personal` không đổi frontend contract.
+- [x] Duplicate external event không tạo duplicate message.
+- [x] Connection loss không crash API/host; credential không xuất hiện repo/frontend/log/response.
+- [x] `CHAT_CHANNEL=mock|zalo-personal` không đổi frontend contract.
 
 ## Out of Scope
 
@@ -47,3 +47,10 @@ pnpm --filter @chat-widget/api build
 
 HITL: sau task `006`, cần con người cung cấp/đăng nhập dedicated POC account, chọn operator thread
 và chấp nhận rủi ro API không chính thức.
+
+Ngày 2026-11-18, adapter code đã được triển khai với exact `zca-js@2.3.0`, validated opt-in config,
+singleton listener lifecycle, persisted outbound mapping, quoted-reply routing, event dedupe và
+stable `503 CHANNEL_UNAVAILABLE`. Mock vẫn là default. Suite live có cờ `RUN_ZALO_LIVE_TESTS=1`;
+AC đầu tiên và trạng thái `ready-for-human` được giữ lại cho tới khi dedicated account/operator
+thread thật chạy pass suite này. Automated quality gate pass với 75 tests; database và Zalo live
+integration suites được skip mặc định. `pnpm audit --prod` không phát hiện known vulnerability.
