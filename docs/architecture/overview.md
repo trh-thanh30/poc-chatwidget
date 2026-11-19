@@ -29,6 +29,10 @@ NestJS API (apps/api)
 Widget bootstrap session và gọi Message API qua `data-api-url`; demo host chỉ cung cấp embed script
 và allowed origin để kiểm thử.
 
+Full-stack handoff thêm one-shot migration/seed container, API image chạy non-root, Widget static
+image và hai Demo static images. Allowed demo được seed theo exact origin; blocked demo dùng cùng
+Widget ID nhưng origin khác để chứng minh backend enforcement.
+
 ## Dependency rules
 
 - Apps có thể import packages qua workspace dependency.

@@ -13,6 +13,12 @@ if (!databaseUrl) throw new Error('DATABASE_URL is required.');
 
 const pool = new Pool({ connectionString: databaseUrl });
 const database = drizzle(pool);
+const allowedOrigins = (process.env.WIDGET_ALLOWED_ORIGINS ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+if (allowedOrigins.length === 0) throw new Error('WIDGET_ALLOWED_ORIGINS must not be empty.');
 
 async function seed(): Promise<void> {
   try {
@@ -27,11 +33,11 @@ async function seed(): Promise<void> {
 
       await transaction
         .insert(widgetAllowedOrigins)
-        .values({ widgetId: 'demo-widget', origin: 'http://localhost:5173' })
+        .values(allowedOrigins.map((origin) => ({ widgetId: 'demo-widget', origin })))
         .onConflictDoNothing();
     });
 
-    console.log('Seeded demo-widget for http://localhost:5173.');
+    console.log(`Seeded demo-widget for ${allowedOrigins.join(', ')}.`);
   } finally {
     await pool.end();
   }

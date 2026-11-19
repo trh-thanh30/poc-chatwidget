@@ -310,6 +310,30 @@ describe('Widget chat flow', () => {
     expect(composer?.value).toBe('');
   });
 
+  it('shows a specific recoverable message when the selected channel is unavailable', async () => {
+    const chatClient: ChatClient = {
+      listMessages: vi.fn().mockResolvedValue([]),
+      sendMessage: vi.fn().mockRejectedValue(
+        new HttpClientError({
+          kind: 'http',
+          status: 503,
+          code: 'CHANNEL_UNAVAILABLE',
+        }),
+      ),
+    };
+    const host = await mountOpenChat(chatClient);
+    const composer = host.shadowRoot?.querySelector<HTMLTextAreaElement>('#chat-message');
+
+    await enterDraft(composer, 'Giữ lại nội dung này');
+    await act(async () => composer?.form?.requestSubmit());
+    await flushUi();
+
+    expect(composer?.value).toBe('Giữ lại nội dung này');
+    expect(host.shadowRoot?.querySelector('#chat-composer-feedback')?.textContent).toContain(
+      'Kênh hỗ trợ đang tạm gián đoạn',
+    );
+  });
+
   it('keeps the draft and disables send while a server rate-limit cooldown is active', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
     try {
@@ -398,9 +422,11 @@ describe('Widget chat flow', () => {
     const queryClient = createWidgetQueryClient();
     const limitedClient: ChatClient = {
       listMessages: vi.fn().mockResolvedValue([]),
-      sendMessage: vi.fn().mockRejectedValue(
-        new HttpClientError({ kind: 'http', status: 429, retryAfterSeconds: 10 }),
-      ),
+      sendMessage: vi
+        .fn()
+        .mockRejectedValue(
+          new HttpClientError({ kind: 'http', status: 429, retryAfterSeconds: 10 }),
+        ),
     };
     const nextSessionClient: ChatClient = {
       listMessages: vi.fn().mockResolvedValue([]),

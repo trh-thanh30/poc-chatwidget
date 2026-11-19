@@ -79,4 +79,33 @@ describe('Widget HTTP client interceptors', () => {
     } satisfies Partial<HttpClientError>);
     expect(axios.isAxiosError(new HttpClientError({ kind: 'network' }))).toBe(false);
   });
+
+  it('notifies the session owner when an authenticated request returns 401', async () => {
+    let unauthorizedCalls = 0;
+    const client = createHttpClient({
+      baseUrl: 'https://api.example.com/api/v1',
+      onUnauthorized: () => {
+        unauthorizedCalls += 1;
+      },
+    });
+    const adapter = async (config: InternalAxiosRequestConfig) => {
+      const response = {
+        config,
+        data: { error: { code: 'SESSION_EXPIRED', message: 'Session expired.' } },
+        headers: new AxiosHeaders(),
+        status: 401,
+        statusText: 'Unauthorized',
+      } satisfies AxiosResponse;
+      throw new AxiosError(
+        'Request failed',
+        AxiosError.ERR_BAD_REQUEST,
+        config,
+        undefined,
+        response,
+      );
+    };
+
+    await expect(client.get('/messages', { adapter })).rejects.toMatchObject({ status: 401 });
+    expect(unauthorizedCalls).toBe(1);
+  });
 });

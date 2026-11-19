@@ -17,7 +17,7 @@
 | ---------------- | ----------- | --------------------------------------------------- |
 | `src`            | yes         | URL tới artifact IIFE `widget.js`                   |
 | `data-widget-id` | yes         | Public Widget ID; không phải secret                 |
-| `data-api-url`   | configured  | Base URL đã được đọc; session/message calls chưa có |
+| `data-api-url`   | yes         | Base URL của versioned Widget session/message API   |
 | `defer`          | recommended | Chạy sau khi HTML parse, không block page rendering |
 
 ## Runtime behavior hiện tại
@@ -26,7 +26,10 @@
 - Nếu host đã tồn tại, script dừng và dùng instance hiện tại.
 - React UI và CSS nằm trong open Shadow Root.
 - Thiếu Widget ID vẫn hiển thị launcher nhưng panel báo lỗi cấu hình.
-- Widget hiện chưa gọi session/message API hoặc gửi tin nhắn.
+- Widget bootstrap JWT session vào memory, poll message và gửi plain-text message qua API.
+- Response `401` làm Widget bootstrap session mới; `429` giữ draft và khóa gửi theo `Retry-After`.
+- API/channel/network failure được hiển thị trong panel; React Error Boundary cô lập lỗi runtime
+  khỏi host page.
 
 ## Host requirements
 
@@ -40,3 +43,5 @@
 - Panel báo thiếu Widget ID: kiểm tra đúng kebab-case `data-widget-id`.
 - Demo báo Widget chưa tải: đợi cổng `4173` sẵn sàng rồi reload.
 - Script chạy hai lần: chỉ một host được giữ lại; kiểm tra DOM bằng host ID ở trên.
+- Panel báo website chưa được cấp quyền: exact origin chưa có trong whitelist backend.
+- Panel báo kênh hỗ trợ gián đoạn: channel adapter đang unavailable; draft vẫn được giữ để retry.

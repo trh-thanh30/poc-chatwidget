@@ -38,6 +38,8 @@ triển khai ở đúng frontend issue, không thêm speculative provider/compon
 
 ```text
 apps/widget/
+├── scripts/
+│   └── smoke-built-widget.mjs
 ├── src/
 │   ├── features/chat/
 │   │   ├── api/
@@ -60,6 +62,8 @@ apps/widget/
 │   ├── entry.tsx
 │   ├── mount-widget.tsx
 │   ├── mount-widget.test.tsx
+│   ├── widget-error-boundary.tsx
+│   ├── widget-error-boundary.test.tsx
 │   ├── widget.tsx
 │   └── styles.css
 ├── package.json
@@ -86,7 +90,7 @@ host HTML
   -> create host element
   -> attach open Shadow Root
   -> append inline <style> + React mount point
-  -> render widget.tsx
+  -> render Error Boundary + widget.tsx
 ```
 
 Mỗi bước có một trách nhiệm riêng. Không gộp bootstrap DOM logic vào presentation component.
@@ -126,6 +130,12 @@ Trách nhiệm:
 - Nhận `Document` dependency khi test.
 
 Không đưa message state, API state hoặc visual decisions vào file này.
+
+### `src/widget-error-boundary.tsx`
+
+Failure boundary cuối cùng của React tree. Nếu lỗi render không được feature xử lý, boundary chỉ
+thay nội dung bên trong Shadow Root bằng fallback có nút thử lại; không throw ra host page và không
+log session token/message content. Đây không thay thế error state có chủ đích của session/chat.
 
 ### `src/widget.tsx`
 
@@ -167,6 +177,8 @@ Build contract hiện tại:
 - Dynamic imports được inline.
 - `process.env.NODE_ENV` được cố định là production để loại dev branch của React.
 - Preview server bật CORS cho cross-origin script development.
+- Sau build, `scripts/smoke-built-widget.mjs` load artifact bằng jsdom để xác nhận IIFE tự mount,
+  tạo đúng một instance và không phụ thuộc React development runtime.
 
 Không đổi filename/hash strategy nếu chưa cập nhật integration guide và cache/deploy strategy.
 

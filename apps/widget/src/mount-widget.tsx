@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { ChatClient } from './features/chat/api/chat.api';
 import type { WidgetSessionClient } from './features/session/api/widget-session.api';
 import { ChatWidget, type ChatWidgetConfig } from './widget';
+import { WidgetErrorBoundary } from './widget-error-boundary';
 import widgetStyles from './styles.css?inline';
 
 export const WIDGET_HOST_ID = 'poc-chatwidget-root';
@@ -40,11 +41,13 @@ export function mountChatWidget(
   const root = createRoot(mountPoint);
   mountedRoots.set(host, root);
   root.render(
-    <ChatWidget
-      config={config}
-      chatClient={dependencies.chatClient}
-      sessionClient={dependencies.sessionClient}
-    />,
+    <WidgetErrorBoundary>
+      <ChatWidget
+        config={config}
+        chatClient={dependencies.chatClient}
+        sessionClient={dependencies.sessionClient}
+      />
+    </WidgetErrorBoundary>,
   );
 
   return host;

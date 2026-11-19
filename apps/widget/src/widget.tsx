@@ -71,8 +71,8 @@ export function ChatWidget({
   const chatClient = useMemo(
     () =>
       chatClientOverride ??
-      (apiUrl && sessionToken ? createChatClient(apiUrl, () => sessionToken) : undefined),
-    [apiUrl, chatClientOverride, sessionToken],
+      (apiUrl && sessionToken ? createChatClient(apiUrl, () => sessionToken, retry) : undefined),
+    [apiUrl, chatClientOverride, retry, sessionToken],
   );
   const availability = {
     initializing: 'Đang kết nối an toàn…',

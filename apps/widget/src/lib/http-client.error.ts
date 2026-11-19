@@ -42,3 +42,10 @@ export function isRateLimitHttpClientError(error: unknown): error is RateLimitHt
     error.retryAfterSeconds > 0
   );
 }
+
+export function isChannelUnavailableHttpClientError(error: unknown): error is HttpClientError {
+  return (
+    error instanceof HttpClientError &&
+    (error.status === 502 || error.status === 503 || error.code === 'CHANNEL_UNAVAILABLE')
+  );
+}

@@ -1,7 +1,7 @@
 :root {
   color: #251f1a;
   background: #e9e2d4;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-synthesis: none;
 }
 
@@ -68,7 +68,9 @@ footer {
 
 .wordmark {
   color: inherit;
-  font: 900 21px/1 "Trebuchet MS", sans-serif;
+  font:
+    900 21px/1 'Trebuchet MS',
+    sans-serif;
   letter-spacing: -0.04em;
   text-decoration: none;
   text-transform: uppercase;
@@ -88,7 +90,9 @@ nav {
 
 nav a {
   color: inherit;
-  font: 700 11px/1 "Trebuchet MS", sans-serif;
+  font:
+    700 11px/1 'Trebuchet MS',
+    sans-serif;
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
@@ -109,7 +113,9 @@ nav button {
 
 .overline {
   margin: 0 0 22px;
-  font: 700 10px/1 "Trebuchet MS", sans-serif;
+  font:
+    700 10px/1 'Trebuchet MS',
+    sans-serif;
   letter-spacing: 0.17em;
   text-transform: uppercase;
 }
@@ -151,7 +157,9 @@ code {
 
 .hero-footer a {
   color: inherit;
-  font: 700 12px/1 "Trebuchet MS", sans-serif;
+  font:
+    700 12px/1 'Trebuchet MS',
+    sans-serif;
   text-underline-offset: 5px;
   text-transform: uppercase;
 }
@@ -185,11 +193,41 @@ code {
   gap: 24px;
 }
 
+.integration-mode {
+  max-width: 760px;
+  padding: 50px 0 70px;
+  border-top: 1px solid rgb(37 31 26 / 28%);
+}
+
+.integration-mode h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.integration-mode > p:last-child {
+  max-width: 650px;
+  margin: 18px 0 0;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+body[data-demo-access='allowed'] .integration-mode {
+  color: #145f50;
+}
+
+body[data-demo-access='blocked'] .integration-mode {
+  color: #8c2f20;
+}
+
 footer {
   display: flex;
   justify-content: space-between;
   padding: 25px 0 30px;
-  font: 700 10px/1 "Trebuchet MS", sans-serif;
+  font:
+    700 10px/1 'Trebuchet MS',
+    sans-serif;
   letter-spacing: 0.1em;
   border-top: 1px solid rgb(37 31 26 / 28%);
   text-transform: uppercase;

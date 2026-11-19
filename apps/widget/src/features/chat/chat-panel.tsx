@@ -2,7 +2,10 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 
 import type { ChatClient } from './api/chat.api';
 import { useChatMessages } from './hooks/use-chat-messages';
-import { isRateLimitHttpClientError } from '../../lib/http-client.error';
+import {
+  isChannelUnavailableHttpClientError,
+  isRateLimitHttpClientError,
+} from '../../lib/http-client.error';
 import type { ChatMessage } from './types/chat.types';
 
 const MESSAGE_MAX_LENGTH = 2_000;
@@ -37,6 +40,7 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
   const normalizedDraft = draft.trim();
   const draftLength = Array.from(normalizedDraft).length;
   const isRateLimitError = isRateLimitHttpClientError(sendMutation.error);
+  const isChannelUnavailableError = isChannelUnavailableHttpClientError(sendMutation.error);
   const hasGenericSendError = sendMutation.isError && !isRateLimitError;
   const canSend =
     !!normalizedDraft &&
@@ -190,7 +194,9 @@ export function ChatPanel({ client, widgetId }: { client: ChatClient; widgetId: 
           ) : null}
           {hasGenericSendError ? (
             <span role="alert">
-              Tin nhắn chưa được gửi. Nội dung vẫn được giữ lại để bạn thử lại.
+              {isChannelUnavailableError
+                ? 'Kênh hỗ trợ đang tạm gián đoạn. Nội dung vẫn được giữ lại để bạn thử lại.'
+                : 'Tin nhắn chưa được gửi. Nội dung vẫn được giữ lại để bạn thử lại.'}
             </span>
           ) : null}
         </div>

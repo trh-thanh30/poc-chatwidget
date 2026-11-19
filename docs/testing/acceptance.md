@@ -30,6 +30,25 @@ pnpm build
 - Widget styles không đổi host button/textarea.
 - Không có stylesheet Widget được inject vào `document.head`.
 
+## Full-stack Compose acceptance
+
+```bash
+pnpm full:config
+pnpm full:up
+pnpm full:ps
+pnpm full:smoke
+```
+
+1. Tất cả long-running service phải healthy và `init` phải exit code `0`.
+2. `http://localhost:8082/widget.js` trả `200`, JavaScript content type và CORS header.
+3. Allowed demo `http://localhost:8080` bootstrap session, gửi message và thấy Mock reply.
+4. Blocked demo `http://localhost:8081` hiển thị domain chưa được cấp quyền; API bootstrap trả 403.
+5. Tắt API tạm thời, hard reload allowed demo và xác nhận host page không crash, Widget có retry UX.
+6. Với session hết hạn/401, xác nhận Widget bootstrap session mới thay vì giữ token cũ.
+7. Chạy keyboard/mobile/isolation checklist phía trên trên cả allowed và blocked demo.
+
+Dừng stack bằng `pnpm full:down`; command này giữ named database volume.
+
 ## Capability acceptance suites
 
 Mỗi backend/frontend capability pair phải bổ sung test riêng cho allowed origin, session

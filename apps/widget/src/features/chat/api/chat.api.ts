@@ -14,8 +14,9 @@ export interface ChatClient {
 export function createChatClient(
   apiUrl: string,
   getAccessToken: () => string | undefined,
+  onUnauthorized?: () => void,
 ): ChatClient {
-  const http = createHttpClient({ baseUrl: apiUrl, getAccessToken });
+  const http = createHttpClient({ baseUrl: apiUrl, getAccessToken, onUnauthorized });
 
   return {
     async listMessages(signal) {

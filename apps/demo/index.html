@@ -9,7 +9,7 @@
     />
     <title>Northstar Studio · Chat Widget Demo</title>
   </head>
-  <body>
+  <body data-demo-access="__DEMO_ACCESS__">
     <div class="page-grain" aria-hidden="true"></div>
     <header class="site-header">
       <a class="wordmark" href="#">Northstar<span>®</span></a>
@@ -44,6 +44,12 @@
           <textarea rows="2" placeholder="Host textarea"></textarea>
         </div>
       </section>
+
+      <section class="integration-mode" aria-labelledby="integration-mode-title">
+        <p class="overline">Domain restriction</p>
+        <h2 id="integration-mode-title">Kiểm thử origin phía backend</h2>
+        <p id="demo-mode-description">Đang đọc cấu hình demo…</p>
+      </section>
     </main>
 
     <footer>
@@ -53,9 +59,9 @@
 
     <script type="module" src="/src/main.ts"></script>
     <script
-      src="http://localhost:4173/widget.js"
+      src="__WIDGET_SCRIPT_URL__"
       data-widget-id="demo-widget"
-      data-api-url="http://localhost:3000/api/v1"
+      data-api-url="__WIDGET_API_URL__"
       defer
     ></script>
   </body>

@@ -130,6 +130,34 @@ pnpm install
 Workspace dùng `minimumReleaseAge` trong `pnpm-workspace.yaml`; package mới có thể chưa được phép
 cài ngay sau khi vừa publish.
 
+## Full-stack Quick Start
+
+Đường chạy handoff không cần chạy `pnpm install` hoặc build app trên host và mặc
+định dùng Mock Channel. Các script `pnpm full:*` chỉ là shortcut cho Docker Compose:
+
+```bash
+cp .env.example .env
+pnpm full:config
+pnpm full:up
+```
+
+Nếu host chỉ có Docker, dùng trực tiếp:
+
+```bash
+docker compose -f docker-compose.full.yml config
+docker compose -f docker-compose.full.yml up -d --build --wait
+```
+
+Mở hai host:
+
+- <http://localhost:8080>: allowed origin, gửi message và nhận Mock reply.
+- <http://localhost:8081>: blocked origin, backend phải từ chối bootstrap.
+
+Widget asset được serve tại <http://localhost:8082/widget.js>, API tại
+<http://localhost:3000/api/v1> và PostgreSQL bind local-only tại `25432`. Dừng stack nhưng giữ
+database bằng `pnpm full:down`. Xem [Full-stack Compose Handoff](docs/integrations/full-stack-compose.md)
+cho port overrides, troubleshooting và Zalo opt-in override.
+
 ## Development
 
 Prepare local PostgreSQL first:
@@ -261,6 +289,10 @@ troubleshooting.
 pnpm dev:api             # Chạy riêng NestJS API
 pnpm dev:widget          # Build/watch và serve riêng Widget artifact
 pnpm dev:demo            # Chạy riêng Demo host
+pnpm full:up             # Build/start full Compose và chờ healthchecks
+pnpm full:down           # Dừng full Compose, giữ database volume
+pnpm full:config         # Validate/render full Compose config
+pnpm full:smoke          # Kiểm tra allowed/blocked/Mock round-trip
 pnpm build:<app>         # Build riêng api, widget hoặc demo
 pnpm check-types:<app>   # TypeScript check riêng api, widget hoặc demo
 pnpm lint                # ESLint toàn bộ application source
@@ -291,6 +323,7 @@ pnpm build
 | [Backend structure](docs/architecture/backend-folder-structure.md)   | NestJS, Drizzle, security và channel boundaries                      |
 | [Acceptance testing](docs/testing/acceptance.md)                     | Automated gates và manual smoke checks                               |
 | [Local infrastructure](docs/integrations/local-infrastructure.md)    | PostgreSQL Compose, environment và Drizzle commands                  |
+| [Full-stack Compose](docs/integrations/full-stack-compose.md)        | Docker handoff, allowed/blocked demos và troubleshooting             |
 | [Agent workflow](AGENTS.md)                                          | Required workflow cho coding agents                                  |
 | [Security policy](SECURITY.md)                                       | Credential, session và vulnerability handling                        |
 

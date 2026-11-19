@@ -1,9 +1,9 @@
 # [POC-CHATWIDGET-011] - Full-stack Packaging, Hardening và Handoff
 
-Status: blocked
+Status: ready-for-human
 Type: feature
 Area: integration
-Blocked by: POC-CHATWIDGET-005, POC-CHATWIDGET-007, POC-CHATWIDGET-009, POC-CHATWIDGET-010
+Blocked by: POC-CHATWIDGET-010 (live Zalo validation only)
 
 ## Parent
 
@@ -30,13 +30,13 @@ nhất quán và handoff documentation.
 
 ## Acceptance Criteria
 
-- [ ] Fresh clone chạy theo README và full stack healthy mà không sửa source.
-- [ ] Allowed demo chat hoàn chỉnh với Mock Channel; blocked demo bị backend từ chối.
-- [ ] Client modification không bypass origin/session enforcement.
-- [ ] API offline, expired session, rate limit và channel unavailable có UI phù hợp.
+- [x] Fresh clone chạy theo README và full stack healthy mà không sửa source.
+- [x] Allowed demo chat hoàn chỉnh với Mock Channel; blocked demo bị backend từ chối.
+- [x] Client modification không bypass origin/session enforcement.
+- [x] API offline, expired session, rate limit và channel unavailable có UI phù hợp.
 - [ ] Mobile, keyboard, screen reader và CSS isolation acceptance pass.
-- [ ] Mock path không cần Zalo credential; Zalo opt-in không lộ secret.
-- [ ] Lint, typecheck, tests, build và Compose config checks đều pass.
+- [x] Mock path không cần Zalo credential; Zalo opt-in không lộ secret.
+- [x] Lint, typecheck, tests, build và Compose config checks đều pass.
 
 ## Out of Scope
 
@@ -53,3 +53,16 @@ pnpm build
 pnpm infra:dev:config
 docker compose -f docker-compose.full.yml config
 ```
+
+## Notes
+
+Ngày 2026-11-18, full Compose images đã build và chạy healthy trên alternate smoke ports để không
+xung đột development services. One-shot `init` exit `0`; API runner chạy non-root UID 1001.
+Automated `full:smoke` xác nhận allowed bootstrap `201`, Mock send/list `201/200` có visitor và
+operator reply, blocked bootstrap `403`, hai demo đúng mode và Widget asset `200` với JavaScript
+content type/CORS. Production dependency audit không phát hiện known vulnerability.
+
+Frontend hardening thêm Error Boundary, unauthorized session re-bootstrap callback và channel
+unavailable feedback giữ draft. Quality gate pass với 78 tests; hai opt-in integration suites vẫn
+skip mặc định. Status giữ `ready-for-human` cho manual mobile/keyboard/screen-reader/browser CSS
+isolation và live Zalo account/thread validation từ task `010`; chưa đủ điều kiện `completed`.

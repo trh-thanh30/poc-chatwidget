@@ -53,6 +53,10 @@ deterministic.
   `Retry-After` để khóa submit tạm thời và mở lại mà không tự gửi.
 - PostgreSQL/Redis local infrastructure đã được runtime-verify. Drizzle migration cho Widget
   session và short-lived messages đã có; BullMQ consumer vẫn chưa được triển khai.
+- Full-stack Compose đóng gói PostgreSQL, one-shot migration/seed, API, Widget static asset và hai
+  demo allowed/blocked. Mock path chạy không cần Zalo credential; Zalo là runtime override opt-in.
+- Widget có Error Boundary cô lập host page, refresh Widget session khi API trả `401` và phân biệt
+  channel unavailable với transport failure trong composer UX.
 
 ## Delivery Model
 
