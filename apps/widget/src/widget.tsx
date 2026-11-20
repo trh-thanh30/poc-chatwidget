@@ -127,13 +127,13 @@ export function ChatWidget({
   return (
     <QueryClientProvider client={queryClient}>
       <div
-        className="fixed right-5 bottom-5 z-[2147483000] font-sans text-base leading-6 text-[#1f2937] antialiased max-[520px]:right-3 max-[520px]:bottom-3"
+        className="fixed right-[max(20px,env(safe-area-inset-right,0px))] bottom-[max(20px,env(safe-area-inset-bottom,0px))] z-[2147483000] font-sans text-base leading-6 text-[#1f2937] antialiased max-[520px]:right-[max(12px,env(safe-area-inset-right,0px))] max-[520px]:bottom-[max(12px,env(safe-area-inset-bottom,0px))]"
         data-open={isOpen ? 'true' : 'false'}
         data-session-status={visibleStatus}
       >
         {isPanelMounted ? (
           <section
-            className={`absolute right-0 bottom-[72px] grid h-[min(610px,calc(100dvh-112px))] min-h-[480px] w-[min(420px,calc(100vw-24px))] origin-bottom-right grid-rows-[auto_minmax(250px,1fr)_auto] overflow-hidden rounded-[22px_22px_6px_22px] border border-black/10 bg-white shadow-[0_28px_70px_rgb(70_16_13_/_22%),0_8px_24px_rgb(70_16_13_/_12%)] transition-[opacity,transform] duration-200 motion-reduce:transition-none max-[520px]:bottom-[66px] max-[520px]:h-[min(620px,calc(100dvh-92px))] max-[520px]:min-h-[min(470px,calc(100dvh-92px))] ${
+            className={`absolute right-0 bottom-[72px] grid h-[min(610px,calc(100dvh-112px))] min-h-[min(480px,calc(100dvh-112px))] w-[min(420px,calc(100vw-24px))] origin-bottom-right grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[22px_22px_6px_22px] border border-black/10 bg-white shadow-[0_28px_70px_rgb(70_16_13_/_22%),0_8px_24px_rgb(70_16_13_/_12%)] transition-[opacity,transform] duration-200 motion-reduce:transform-none motion-reduce:transition-none max-[520px]:bottom-[66px] max-[520px]:h-[min(620px,calc(100dvh-92px))] max-[520px]:min-h-[min(470px,calc(100dvh-92px))] ${
               isOpen
                 ? 'translate-y-0 scale-100 opacity-100 starting:translate-y-3 starting:scale-[0.97] starting:opacity-0'
                 : 'pointer-events-none translate-y-2.5 scale-[0.97] opacity-0'
@@ -145,7 +145,7 @@ export function ChatWidget({
             data-state={isOpen ? 'open' : 'closing'}
             inert={!isOpen ? true : undefined}
           >
-            <header className="grid grid-cols-[44px_minmax(0,1fr)_40px] items-center gap-2.5 bg-[#e21b14] px-4 py-4 text-white">
+            <header className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-2.5 bg-[#e21b14] px-4 py-4 text-white">
               <div
                 className="grid size-11 place-items-center rounded-xl bg-white/18 text-white ring-1 ring-white/20"
                 aria-hidden="true"
@@ -178,7 +178,7 @@ export function ChatWidget({
               </div>
               <button
                 ref={closeButtonRef}
-                className="grid size-10 cursor-pointer place-items-center rounded-xl border border-white/20 bg-white/10 p-0 text-white/85 transition-colors duration-200 hover:bg-white/20 hover:text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white/70"
+                className="grid size-11 cursor-pointer place-items-center rounded-xl border border-white/20 bg-white/10 p-0 text-white/85 transition-colors duration-200 hover:bg-white/20 hover:text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white/70"
                 type="button"
                 aria-label="Đóng cửa sổ chat"
                 onClick={closePanel}
@@ -233,7 +233,7 @@ export function ChatWidget({
 
         <button
           ref={launcherRef}
-          className={`group flex h-14 cursor-pointer items-center justify-end gap-2.5 overflow-hidden rounded-full border border-white/70 bg-[#e21b14] px-3.5 text-white shadow-[0_12px_30px_rgb(130_20_15_/_28%),0_3px_8px_rgb(70_10_8_/_16%)] transition-[width,transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#c91711] hover:shadow-[0_16px_34px_rgb(130_20_15_/_32%),0_4px_10px_rgb(70_10_8_/_18%)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#e21b14]/35 motion-reduce:transition-none ${
+          className={`group flex h-14 cursor-pointer items-center justify-end gap-2.5 overflow-hidden rounded-full border border-white/70 bg-[#e21b14] px-3.5 text-white shadow-[0_12px_30px_rgb(130_20_15_/_28%),0_3px_8px_rgb(70_10_8_/_16%)] transition-[width,transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#c91711] hover:shadow-[0_16px_34px_rgb(130_20_15_/_32%),0_4px_10px_rgb(70_10_8_/_18%)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[#e21b14]/35 motion-reduce:hover:translate-y-0 motion-reduce:transition-none ${
             isOpen
               ? 'w-14'
               : 'w-14 hover:w-[196px] focus-visible:w-[196px] max-[520px]:hover:w-14 max-[520px]:focus-visible:w-14'

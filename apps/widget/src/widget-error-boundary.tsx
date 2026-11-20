@@ -29,7 +29,7 @@ export class WidgetErrorBoundary extends Component<
 
     return (
       <section
-        className="fixed right-5 bottom-5 z-[2147483000] grid w-[min(310px,calc(100vw-24px))] gap-2.5 rounded-2xl border border-[#fecaca] bg-white p-[18px] font-sans text-[#1f2937] shadow-[0_18px_42px_rgb(70_16_13_/_20%)] max-[520px]:right-3 max-[520px]:bottom-3"
+        className="fixed right-[max(20px,env(safe-area-inset-right,0px))] bottom-[max(20px,env(safe-area-inset-bottom,0px))] z-[2147483000] grid w-[min(310px,calc(100vw-24px))] gap-2.5 rounded-2xl border border-[#fecaca] bg-white p-[18px] font-sans text-[#1f2937] shadow-[0_18px_42px_rgb(70_16_13_/_20%)] max-[520px]:right-[max(12px,env(safe-area-inset-right,0px))] max-[520px]:bottom-[max(12px,env(safe-area-inset-bottom,0px))]"
         role="alert"
         aria-label="Chat Widget gặp lỗi"
       >

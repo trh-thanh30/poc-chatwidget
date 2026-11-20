@@ -26,7 +26,6 @@ export function mountChatWidget(
   const host = targetDocument.createElement('div');
   host.id = WIDGET_HOST_ID;
   host.dataset.widgetId = config.widgetId ?? '';
-  host.setAttribute('aria-live', 'polite');
 
   const shadowRoot = host.attachShadow({ mode: 'open' });
   const style = targetDocument.createElement('style');

@@ -28,6 +28,8 @@ describe('mountChatWidget', () => {
     expect(document.querySelectorAll(`#${WIDGET_HOST_ID}`)).toHaveLength(1);
     expect(firstHost.shadowRoot).not.toBeNull();
     expect(firstHost.shadowRoot?.querySelector('style')).not.toBeNull();
+    expect(document.head.querySelector('style')).toBeNull();
+    expect(firstHost.hasAttribute('aria-live')).toBe(false);
     expect(
       firstHost.shadowRoot?.querySelector('button[aria-label="Mở cửa sổ chat"]'),
     ).not.toBeNull();
@@ -48,6 +50,9 @@ describe('mountChatWidget', () => {
 
     expect(host.shadowRoot?.querySelector('[role="dialog"]')).not.toBeNull();
     expect(launcher?.getAttribute('aria-expanded')).toBe('true');
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')?.getAttribute('aria-hidden')).toBe(
+      'false',
+    );
 
     const closeButton = host.shadowRoot?.querySelector<HTMLButtonElement>(
       'button[aria-label="Đóng cửa sổ chat"]',
@@ -58,6 +63,10 @@ describe('mountChatWidget', () => {
     expect(host.shadowRoot?.querySelector('[role="dialog"]')?.getAttribute('data-state')).toBe(
       'closing',
     );
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')?.hasAttribute('inert')).toBe(true);
     expect(host.shadowRoot?.activeElement).toBe(launcher);
 
     await act(async () => vi.advanceTimersByTime(180));
